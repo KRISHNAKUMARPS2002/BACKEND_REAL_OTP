@@ -18,6 +18,6 @@ module.exports = router;
 router.get("/profile", authMiddleware, userController.getUserProfile);
 
 // Get user details by authId
-router.get("/authId/:authId", userController.getUserByAuthId);
+router.get("/:authId", userController.getUserByAuthId);
 
 module.exports = router;

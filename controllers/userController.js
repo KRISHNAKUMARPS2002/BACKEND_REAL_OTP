@@ -19,17 +19,18 @@ const generateNumericOTP = () => {
 const sendOtpViaTwilio = async (phoneNumber, otp) => {
   try {
     await twilioClient.messages.create({
-      body: ` Your OTP code is ${otp}`,
+      body: `Your OTP code is ${otp}`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: phoneNumber,
     });
+    console.log(`OTP sent successfully to ${phoneNumber}`);
   } catch (error) {
     console.error("Error sending OTP via Twilio:", error.message);
     throw new Error("Failed to send OTP");
   }
 };
 
-// Register a new user without saving OTP in the database
+// Register a new user
 exports.register = async (req, res) => {
   const { username, email, password, phoneNumber, authId } = req.body;
 
@@ -55,7 +56,7 @@ exports.register = async (req, res) => {
     // Log registration process
     console.log(`User registered: ${username} (${phoneNumber}), OTP: ${otp}`);
 
-    res.status(201).json({ msg: "User registered successfully" });
+    res.status(201).json({ msg: "User registered successfully", otp }); // Include OTP in response for testing
   } catch (error) {
     console.error("Error registering user:", error.message);
     res.status(500).send("Server error");
@@ -68,8 +69,6 @@ exports.verifyOTP = async (req, res) => {
 
   try {
     // Simulate OTP verification without database check
-    // In a real scenario, you would check the OTP against a stored value in the database
-    // For demonstration purposes, we'll just return a success response
     console.log(`OTP verification for user: ${phoneNumber}`);
     res.status(200).json({ msg: "OTP verified successfully" });
   } catch (error) {
