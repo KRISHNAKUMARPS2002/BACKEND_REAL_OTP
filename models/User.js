@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   authId: {
-    type: Number,
+    type: String, // Changed to String for UUID
     required: true,
     unique: true,
   },

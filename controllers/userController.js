@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const twilio = require("twilio");
+const { v4: uuidv4 } = require("uuid"); // Import uuid package for generating authId
 require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -19,7 +20,7 @@ const generateNumericOTP = () => {
 const sendOtpViaTwilio = async (phoneNumber, otp) => {
   try {
     await twilioClient.messages.create({
-      body: `Your OTP code is ${otp}`,
+      body: ` Your OTP code is ${otp}`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: phoneNumber,
     });
@@ -30,21 +31,36 @@ const sendOtpViaTwilio = async (phoneNumber, otp) => {
   }
 };
 
+// Function to generate a unique authId using UUID
+const generateUniqueAuthId = () => {
+  return uuidv4();
+};
+
 // Register a new user
 exports.register = async (req, res) => {
-  const { username, email, password, phoneNumber, authId } = req.body;
+  const { username, email, password, phoneNumber } = req.body;
 
   try {
+    // Check if all required fields are provided
+    if (!username || !email || !password || !phoneNumber) {
+      return res
+        .status(400)
+        .json({ error: "Please provide all required information" });
+    }
+
     // Generate OTP
     const otp = generateNumericOTP();
 
     // Send OTP via SMS using Twilio
     await sendOtpViaTwilio(phoneNumber, otp);
 
+    // Generate a unique authId
+    const authId = generateUniqueAuthId();
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user without saving OTP
+    // Create a new user
     const newUser = await User.create({
       username,
       email,

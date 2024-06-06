@@ -1,28 +1,33 @@
 const jwt = require("jsonwebtoken");
 
-// Create a JWT token (symmetric algorithm - HS256)
-const createToken = (payload) => {
-  const secretKey = process.env.JWT_SECRET;
-  return jwt.sign(payload, secretKey, { expiresIn: "1h" });
-};
-
-// Validate a JWT token (symmetric algorithm - HS256)
-const validateToken = (token) => {
+const createToken = (payload, expiresIn = "1h", algorithm = "HS256") => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    return decoded;
+    const secretKey = process.env.JWT_SECRET;
+    return jwt.sign(payload, secretKey, { expiresIn, algorithm });
   } catch (error) {
-    return null; // Invalid token
+    console.error("Error creating JWT token:", error);
+    return null;
   }
 };
 
-// Read a JWT token (symmetric algorithm - HS256)
+const validateToken = (token) => {
+  try {
+    const secretKey = process.env.JWT_SECRET;
+    const decoded = jwt.verify(token, secretKey);
+    return decoded;
+  } catch (error) {
+    console.error("Error validating JWT token:", error);
+    return null;
+  }
+};
+
 const readToken = (token) => {
   try {
     const decoded = jwt.decode(token);
     return decoded;
   } catch (error) {
-    return null; // Invalid token
+    console.error("Error reading JWT token:", error);
+    return null;
   }
 };
 

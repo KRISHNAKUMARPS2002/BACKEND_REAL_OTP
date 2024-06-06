@@ -17,7 +17,9 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "6.5",
     "mongoose": "^8.4.1",
-    "twilio": "^5.1.0"
+    "twilio": "^5.1.0",
+    "uuid": "^9.0.1",
+    "winston": "^3.13.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.3"

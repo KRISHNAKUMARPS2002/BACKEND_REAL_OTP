@@ -1,8 +1,8 @@
-require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const config = require("./config");
 
 const app = express();
 
@@ -11,10 +11,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Connect to MongoDB
-const mongoUri = process.env.MONGODB_URI;
+const mongoUri = config.MONGODB_URI;
 
 if (!mongoUri) {
-  throw new Error("MONGO_URI environment variable is not defined");
+  throw new Error("MONGODB_URI environment variable is not defined");
 }
 
 const connectWithRetry = () => {
@@ -23,14 +23,14 @@ const connectWithRetry = () => {
       serverSelectionTimeoutMS: 10000, // Increased timeout to 10 seconds for server selection
     })
     .then(() => {
-      console.log("Connected to MongoDB");
+      config.logger.info("Connected to MongoDB");
     })
     .catch((err) => {
-      console.error(
+      config.logger.error(
         "Error connecting to MongoDB, retrying in 5 seconds...",
         err
       );
-      setTimeout(connectWithRetry, 9000); // Retry connection after 5 seconds
+      setTimeout(connectWithRetry, 5000); // Retry connection after 5 seconds
     });
 };
 
@@ -42,7 +42,9 @@ const userRoutes = require("./routes/userRoutes");
 app.use("/api/user", userRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 3000; // Default to 3000 if PORT is not set
+const PORT = config.PORT || 3000; // Use PORT from config or default to 3000
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  config.logger.info(
+    `Server running in ${config.NODE_ENV} mode on port ${PORT}`
+  );
 });
