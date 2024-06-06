@@ -1,11 +1,30 @@
 const jwt = require("jsonwebtoken");
+const logger = require("../logger"); // Adjust the path to your actual logger file
 
-const createToken = (payload, expiresIn = "1h", algorithm = "HS256") => {
+const createTokens = (
+  payload,
+  accessTokenExpiresIn = "1h",
+  refreshTokenExpiresIn = "7d",
+  algorithm = "HS256"
+) => {
   try {
     const secretKey = process.env.JWT_SECRET;
-    return jwt.sign(payload, secretKey, { expiresIn, algorithm });
+    if (!secretKey) {
+      throw new Error(
+        "JWT secret key is not defined in environment variables."
+      );
+    }
+    const accessToken = jwt.sign(payload, secretKey, {
+      expiresIn: accessTokenExpiresIn,
+      algorithm,
+    });
+    const refreshToken = jwt.sign(payload, secretKey, {
+      expiresIn: refreshTokenExpiresIn,
+      algorithm,
+    });
+    return { accessToken, refreshToken };
   } catch (error) {
-    console.error("Error creating JWT token:", error);
+    logger.error("Error creating JWT tokens:", error);
     return null;
   }
 };
@@ -13,10 +32,15 @@ const createToken = (payload, expiresIn = "1h", algorithm = "HS256") => {
 const validateToken = (token) => {
   try {
     const secretKey = process.env.JWT_SECRET;
+    if (!secretKey) {
+      throw new Error(
+        "JWT secret key is not defined in environment variables."
+      );
+    }
     const decoded = jwt.verify(token, secretKey);
     return decoded;
   } catch (error) {
-    console.error("Error validating JWT token:", error);
+    logger.error("Error validating JWT token:", error);
     return null;
   }
 };
@@ -26,13 +50,13 @@ const readToken = (token) => {
     const decoded = jwt.decode(token);
     return decoded;
   } catch (error) {
-    console.error("Error reading JWT token:", error);
+    logger.error("Error reading JWT token:", error);
     return null;
   }
 };
 
 module.exports = {
-  createToken,
+  createTokens,
   validateToken,
   readToken,
 };

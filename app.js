@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const config = require("./config");
+const logger = require("./logger"); // Import the logger
 
 const app = express();
 
@@ -23,10 +24,10 @@ const connectWithRetry = () => {
       serverSelectionTimeoutMS: 10000, // Increased timeout to 10 seconds for server selection
     })
     .then(() => {
-      config.logger.info("Connected to MongoDB");
+      logger.info("Connected to MongoDB");
     })
     .catch((err) => {
-      config.logger.error(
+      logger.error(
         "Error connecting to MongoDB, retrying in 5 seconds...",
         err
       );
@@ -38,13 +39,10 @@ connectWithRetry();
 
 // Routes
 const userRoutes = require("./routes/userRoutes");
-
 app.use("/api/user", userRoutes);
 
 // Start the server
 const PORT = config.PORT || 3000; // Use PORT from config or default to 3000
 app.listen(PORT, () => {
-  config.logger.info(
-    `Server running in ${config.NODE_ENV} mode on port ${PORT}`
-  );
+  logger.info(`Server running in ${config.NODE_ENV} mode on port ${PORT}`);
 });

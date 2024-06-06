@@ -12,12 +12,10 @@ router.post("/verify-otp", userController.verifyOTP);
 // User login
 router.post("/login", userController.login);
 
-module.exports = router;
-
 // Get user profile (protected route)
 router.get("/profile", authMiddleware, userController.getUserProfile);
 
 // Get user details by authId
-router.get("/:authId", userController.getUserByAuthId);
+router.get("/:authId", authMiddleware, userController.getUserByAuthId);
 
 module.exports = router;
