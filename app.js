@@ -1,37 +1,50 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const compression = require("compression");
 const config = require("./config");
 const logger = require("./logger"); // Import the logger
 
 const app = express();
 
-// Middleware
+// Security middlewares
+app.use(helmet());
 app.use(cors());
-app.use(bodyParser.json());
+app.use(compression());
 
-// Connect to MongoDB
+// Rate limiting to prevent brute-force attacks
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
+// Body parser middleware is now part of Express
+app.use(express.json());
+
+// Connect to MongoDB with retry logic
 const mongoUri = config.MONGODB_URI;
-
 if (!mongoUri) {
-  throw new Error("MONGODB_URI environment variable is not defined");
+  logger.error("MONGODB_URI environment variable is not defined");
+  process.exit(1);
 }
 
 const connectWithRetry = () => {
   mongoose
     .connect(mongoUri, {
-      serverSelectionTimeoutMS: 10000, // Increased timeout to 10 seconds for server selection
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
     })
-    .then(() => {
-      logger.info("Connected to MongoDB");
-    })
+    .then(() => logger.info("Connected to MongoDB"))
     .catch((err) => {
       logger.error(
-        "Error connecting to MongoDB, retrying in 5 seconds...",
+        "MongoDB connection unsuccessful, retry after 5 seconds.",
         err
       );
-      setTimeout(connectWithRetry, 5000); // Retry connection after 5 seconds
+      setTimeout(connectWithRetry, 5000);
     });
 };
 
@@ -41,8 +54,14 @@ connectWithRetry();
 const userRoutes = require("./routes/userRoutes");
 app.use("/api/user", userRoutes);
 
+// Global error handler
+app.use((err, req, res, next) => {
+  logger.error("An unexpected error occurred:", err);
+  res.status(500).send("An unexpected error occurred");
+});
+
 // Start the server
-const PORT = config.PORT || 3000; // Use PORT from config or default to 3000
+const PORT = config.PORT || 3000;
 app.listen(PORT, () => {
   logger.info(`Server running in ${config.NODE_ENV} mode on port ${PORT}`);
 });

@@ -1,0 +1,11 @@
+2024-06-06T17:55:01.045Z error: JsonWebTokenError: invalid token
+    at module.exports [as verify] (C:\backend_real_otp\node_modules\jsonwebtoken\verify.js:82:17)
+    at module.exports (C:\backend_real_otp\middleware\authMiddleware.js:22:25)
+    at Layer.handle [as handle_request] (C:\backend_real_otp\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\backend_real_otp\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\backend_real_otp\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\backend_real_otp\node_modules\express\lib\router\layer.js:95:5)
+    at C:\backend_real_otp\node_modules\express\lib\router\index.js:284:15
+    at param (C:\backend_real_otp\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\backend_real_otp\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (C:\backend_real_otp\node_modules\express\lib\router\index.js:421:3)
