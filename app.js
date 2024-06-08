@@ -18,6 +18,7 @@ app.use(compression());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later",
 });
 app.use(limiter);
 
@@ -57,11 +58,13 @@ app.use("/api/user", userRoutes);
 // Global error handler
 app.use((err, req, res, next) => {
   logger.error("An unexpected error occurred:", err);
-  res.status(500).send("An unexpected error occurred");
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(500).json({ error: "An unexpected error occurred" });
 });
 
-// Start the server
 const PORT = config.PORT || 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.info(`Server running in ${config.NODE_ENV} mode on port ${PORT}`);
 });

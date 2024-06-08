@@ -16,3 +16,5 @@
     at Function.process_params (C:\backend_real_otp\node_modules\express\lib\router\index.js:421:3)
 2024-06-06T18:04:32.354Z warn: Access denied. No token provided.
 {"level":"info","message":"Environment: production","timestamp":"2024-06-07T17:36:59.844Z"}
+{"level":"info","message":"Environment: production","timestamp":"2024-06-08T05:19:04.372Z"}
+{"level":"info","message":"Environment: production","timestamp":"2024-06-08T06:01:33.459Z"}

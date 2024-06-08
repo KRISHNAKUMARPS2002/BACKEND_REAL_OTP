@@ -11,7 +11,31 @@ const logger = createLogger({
   format: combine(errors({ stack: true }), timestamp(), customFormat),
   transports: [
     new transports.DailyRotateFile({
-      filename: "application-%DATE%.log",
+      filename: "logs/application-%DATE%.log", // Ensure the logs are stored in a dedicated folder
+      datePattern: "YYYY-MM-DD",
+      zippedArchive: true,
+      maxSize: "20m",
+      maxFiles: "14d",
+    }),
+    ...(process.env.NODE_ENV !== "production"
+      ? [new transports.Console()]
+      : []),
+  ],
+  exceptionHandlers: [
+    new transports.DailyRotateFile({
+      filename: "logs/exceptions-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      zippedArchive: true,
+      maxSize: "20m",
+      maxFiles: "14d",
+    }),
+    ...(process.env.NODE_ENV !== "production"
+      ? [new transports.Console()]
+      : []),
+  ],
+  rejectionHandlers: [
+    new transports.DailyRotateFile({
+      filename: "logs/rejections-%DATE%.log",
       datePattern: "YYYY-MM-DD",
       zippedArchive: true,
       maxSize: "20m",
