@@ -40,4 +40,10 @@ router.post("/refresh-token", (req, res) => {
   }
 });
 
+// Update user details (protected route)
+router.put("/update", authMiddleware, userController.updateUser);
+
+// Delete a user (protected route)
+router.delete("/delete", authMiddleware, userController.deleteUser);
+
 module.exports = router;

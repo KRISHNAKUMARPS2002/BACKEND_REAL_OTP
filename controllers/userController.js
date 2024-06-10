@@ -164,4 +164,55 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
+// Update user details
+exports.updateUser = async (req, res) => {
+  const { username, email, password, phoneNumber } = req.body;
+  const userId = req.user._id; // Extract the authenticated user's ID from the request
+
+  try {
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // Update user details
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.phoneNumber = phoneNumber || user.phoneNumber;
+
+    // If password is provided, hash it before saving
+    if (password) {
+      user.password = await bcrypt.hash(password, 10);
+    }
+
+    await user.save(); // Save the updated user details
+
+    res.json({ msg: "User updated successfully" });
+  } catch (error) {
+    console.error("Error updating user:", error.message);
+    res.status(500).send("Server error");
+  }
+};
+
+// Delete a user
+exports.deleteUser = async (req, res) => {
+  const userId = req.user._id; // Extract the authenticated user's ID from the request
+
+  try {
+    // Find the user by ID and delete
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.json({ msg: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error.message);
+    res.status(500).send("Server error");
+  }
+};
+
 module.exports = exports;

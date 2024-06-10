@@ -35,8 +35,8 @@ if (!mongoUri) {
 const connectWithRetry = () => {
   mongoose
     .connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      //useNewUrlParser: true,
+      //useUnifiedTopology: true,
       serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
     })
     .then(() => logger.info("Connected to MongoDB"))
