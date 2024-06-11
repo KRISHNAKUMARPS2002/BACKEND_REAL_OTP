@@ -1,5 +1,24 @@
 const mongoose = require("mongoose");
 
+const favoriteSchema = new mongoose.Schema({
+  id: {
+    type: Number,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  completed: {
+    type: Boolean,
+    required: true,
+  },
+  authId: {
+    type: String,
+    required: true,
+  },
+});
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -15,7 +34,7 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   authId: {
-    type: String, // Changed to String for UUID
+    type: String,
     required: true,
     unique: true,
   },
@@ -24,6 +43,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  favorites: [favoriteSchema], // Optional by default
 });
 
 const User = mongoose.model("User", userSchema);

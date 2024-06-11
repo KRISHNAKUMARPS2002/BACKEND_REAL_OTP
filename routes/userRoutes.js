@@ -46,4 +46,25 @@ router.put("/update", authMiddleware, userController.updateUser);
 // Delete a user (protected route)
 router.delete("/delete", authMiddleware, userController.deleteUser);
 
+// Add a favorite
+router.post(
+  "/add-favorite/:authId",
+  authMiddleware,
+  userController.addFavorite
+);
+
+// Get favorites by authId
+router.get(
+  "/favorites/:authId",
+  authMiddleware,
+  userController.getFavoritesByAuthId
+);
+
+// Remove a favorite
+router.delete(
+  "/remove-favorite/:authId",
+  authMiddleware,
+  userController.removeFavorite
+);
+
 module.exports = router;

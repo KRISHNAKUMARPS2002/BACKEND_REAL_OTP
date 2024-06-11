@@ -1,26 +1,25 @@
 const jwt = require("jsonwebtoken");
-const logger = require("../logger"); // Adjust the path to your actual logger file
+const logger = require("../logger");
+
+const accessDeniedMessage = "Access denied. No token provided.";
 
 module.exports = (req, res, next) => {
   try {
     const authHeader = req.header("Authorization");
     if (!authHeader) {
-      logger.warn("Access denied. No token provided.");
-      return res
-        .status(403)
-        .json({ error: "Access denied. No token provided." });
+      logger.warn(accessDeniedMessage);
+      return res.status(401).json({ error: accessDeniedMessage });
     }
 
     const token = authHeader.split(" ")[1]; // Extract the token after 'Bearer'
     if (!token) {
-      logger.warn("Access denied. No token provided.");
-      return res
-        .status(403)
-        .json({ error: "Access denied. No token provided." });
+      logger.warn(accessDeniedMessage);
+      return res.status(401).json({ error: accessDeniedMessage });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    console.log("Decoded token:", decoded); // Log the decoded token for debugging
+    req.user = decoded; // Attach the decoded token to req.user
     next();
   } catch (error) {
     logger.error("Invalid token.", error);

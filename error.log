@@ -9,3 +9,10 @@
     at param (C:\backend_real_otp\node_modules\express\lib\router\index.js:365:14)
     at param (C:\backend_real_otp\node_modules\express\lib\router\index.js:376:14)
     at Function.process_params (C:\backend_real_otp\node_modules\express\lib\router\index.js:421:3)
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 123456XXXX"}
+{"level":"error","message":"Error registering user: Failed to send OTP"}
+{"level":"error","message":"Error sending OTP via Twilio: Permission to send an SMS has not been enabled for the region indicated by the 'To' number: 234567XXXX"}
+{"level":"error","message":"Error registering user: Failed to send OTP"}
+{"level":"error","message":"Error registering user: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"Krish@example.com\" }"}
+{"level":"error","message":"Error sending OTP via Twilio: Permission to send an SMS has not been enabled for the region indicated by the 'To' number: 813782XXXX"}
+{"level":"error","message":"Error registering user: Failed to send OTP"}

@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Otp = require("../models/Otp");
 const twilio = require("twilio");
 const { v4: uuidv4 } = require("uuid");
 const dotenv = require("dotenv");
@@ -31,9 +32,7 @@ if (process.env.NODE_ENV !== "production") {
   );
 }
 
-const generateNumericOTP = () => {
-  return Math.floor(1000 + Math.random() * 9000);
-};
+const generateNumericOTP = () => Math.floor(1000 + Math.random() * 9000);
 
 const sendOtpViaTwilio = async (phoneNumber, otp) => {
   try {
@@ -49,9 +48,7 @@ const sendOtpViaTwilio = async (phoneNumber, otp) => {
   }
 };
 
-const generateUniqueAuthId = () => {
-  return uuidv4();
-};
+const generateUniqueAuthId = () => uuidv4();
 
 exports.register = async (req, res) => {
   const { username, email, password, phoneNumber } = req.body;
@@ -63,8 +60,16 @@ exports.register = async (req, res) => {
   }
 
   try {
+    // Check if the phone number already exists
+    const existingUser = await User.findOne({ phoneNumber });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: "Phone number is already registered" });
+    }
+
     const otp = generateNumericOTP();
-    await sendOtpViaTwilio(phoneNumber, otp);
+    await Otp.create({ phoneNumber, otp, createdAt: new Date() });
 
     const authId = generateUniqueAuthId();
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -76,10 +81,13 @@ exports.register = async (req, res) => {
       phoneNumber,
       authId,
     });
-
     logger.info(`User registered: ${username} (${phoneNumber})`);
 
-    res.status(201).json({ msg: "User registered successfully" });
+    await sendOtpViaTwilio(phoneNumber, otp);
+
+    res
+      .status(201)
+      .json({ msg: "User registered successfully, OTP sent to phone" });
   } catch (error) {
     logger.error(`Error registering user: ${error.message}`);
     res.status(500).send("Server error");
@@ -90,8 +98,21 @@ exports.verifyOTP = async (req, res) => {
   const { phoneNumber, otp } = req.body;
 
   try {
-    logger.info(`OTP verification for user: ${phoneNumber}`);
-    res.status(200).json({ msg: "OTP verified successfully" });
+    const otpRecord = await Otp.findOne({ phoneNumber });
+    if (!otpRecord || otpRecord.otp !== otp) {
+      logger.warn(`OTP verification failed for user: ${phoneNumber}`);
+      return res.status(400).json({ error: "Invalid or expired OTP" });
+    }
+
+    await Otp.deleteOne({ phoneNumber });
+    logger.info(`OTP verified successfully for user: ${phoneNumber}`);
+
+    const user = await User.findOne({ phoneNumber });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.status(200).json({ msg: "OTP verified successfully", token });
   } catch (error) {
     logger.error(`Error verifying OTP: ${error.message}`);
     res.status(500).send("Server error");
@@ -103,7 +124,6 @@ exports.login = async (req, res) => {
 
   try {
     logger.info(`User login attempt: ${phoneNumber}`);
-
     const user = await User.findOne({ phoneNumber });
 
     if (!user) {
@@ -114,13 +134,14 @@ exports.login = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
       logger.warn(`Login failed: Incorrect password for user ${phoneNumber}`);
       return res.status(400).json({ msg: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
     logger.info(`User logged in: ${phoneNumber}`);
     res.json({ token });
   } catch (error) {
@@ -147,7 +168,9 @@ exports.getUserByAuthId = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId; // Ensure we're using userId from the decoded token
+    console.log("User ID from token:", userId); // Log the user ID for debugging
+
     const user = await User.findById(userId);
 
     if (!user) {
@@ -157,13 +180,13 @@ exports.getUserProfile = async (req, res) => {
     res.json(user);
   } catch (error) {
     logger.error(`Error fetching user profile: ${error.message}`);
-    res.status(500).send("Server error");
+    res.status(500).send("Server error");
   }
 };
 
 exports.updateUser = async (req, res) => {
   const { username, email, password, phoneNumber } = req.body;
-  const userId = req.user._id;
+  const userId = req.user.userId;
 
   try {
     const user = await User.findById(userId);
@@ -189,7 +212,7 @@ exports.updateUser = async (req, res) => {
 };
 
 exports.deleteUser = async (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user.userId;
 
   try {
     const user = await User.findByIdAndDelete(userId);
@@ -201,6 +224,70 @@ exports.deleteUser = async (req, res) => {
     res.json({ msg: "User deleted successfully" });
   } catch (error) {
     logger.error(`Error deleting user: ${error.message}`);
+    res.status(500).send("Server error");
+  }
+};
+
+// Add a favorite
+exports.addFavorite = async (req, res) => {
+  try {
+    const authId = req.params.authId;
+    const { id, title, completed } = req.body;
+
+    const user = await User.findOne({ authId });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    const newFavorite = { id, title, completed, authId };
+    user.favorites.push(newFavorite);
+
+    await user.save();
+
+    res.json(user.favorites);
+  } catch (error) {
+    logger.error(`Error adding favorite: ${error.message}`);
+    res.status(500).send("Server error");
+  }
+};
+
+// Get favorites by authId
+exports.getFavoritesByAuthId = async (req, res) => {
+  try {
+    const authId = req.params.authId;
+    const user = await User.findOne({ authId });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.json(user.favorites);
+  } catch (error) {
+    logger.error(`Error fetching favorites: ${error.message}`);
+    res.status(500).send("Server error");
+  }
+};
+
+// Remove a favorite
+exports.removeFavorite = async (req, res) => {
+  try {
+    const authId = req.params.authId;
+    const { id } = req.body;
+
+    const user = await User.findOne({ authId });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    user.favorites = user.favorites.filter((fav) => fav.id !== id);
+
+    await user.save();
+
+    res.json(user.favorites);
+  } catch (error) {
+    logger.error(`Error removing favorite: ${error.message}`);
     res.status(500).send("Server error");
   }
 };

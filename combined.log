@@ -18,3 +18,17 @@
 {"level":"info","message":"Environment: production","timestamp":"2024-06-07T17:36:59.844Z"}
 {"level":"info","message":"Environment: production","timestamp":"2024-06-08T05:19:04.372Z"}
 {"level":"info","message":"Environment: production","timestamp":"2024-06-08T06:01:33.459Z"}
+{"level":"info","message":"User registered: Krish (1234567890)"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 123456XXXX"}
+{"level":"error","message":"Error registering user: Failed to send OTP"}
+{"level":"info","message":"User registered: Krish (2345678999)"}
+{"level":"error","message":"Error sending OTP via Twilio: Permission to send an SMS has not been enabled for the region indicated by the 'To' number: 234567XXXX"}
+{"level":"error","message":"Error registering user: Failed to send OTP"}
+{"level":"error","message":"Error registering user: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"Krish@example.com\" }"}
+{"level":"warn","message":"OTP verification failed for user: 1234567890"}
+{"level":"info","message":"User registered: Krish2 (8137828934)"}
+{"level":"error","message":"Error sending OTP via Twilio: Permission to send an SMS has not been enabled for the region indicated by the 'To' number: 813782XXXX"}
+{"level":"error","message":"Error registering user: Failed to send OTP"}
+{"level":"info","message":"OTP verified successfully for user: 8137828934"}
+{"level":"info","message":"User login attempt: 8137828934"}
+{"level":"info","message":"User logged in: 8137828934"}
