@@ -4,8 +4,9 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const compression = require("compression");
+const path = require("path");
 const config = require("./config");
-const logger = require("./logger"); // Import the logger
+const logger = require("./logger");
 
 const app = express();
 
@@ -25,6 +26,9 @@ app.use(limiter);
 // Body parser middleware is now part of Express
 app.use(express.json());
 
+// Serve static files from the uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Connect to MongoDB with retry logic
 const mongoUri = config.MONGODB_URI;
 if (!mongoUri) {
@@ -35,8 +39,6 @@ if (!mongoUri) {
 const connectWithRetry = () => {
   mongoose
     .connect(mongoUri, {
-      //useNewUrlParser: true,
-      //useUnifiedTopology: true,
       serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
     })
     .then(() => logger.info("Connected to MongoDB"))

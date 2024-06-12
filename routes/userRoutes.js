@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 const authMiddleware = require("../middleware/authMiddleware");
-const { validateToken, createTokens } = require("../utils/jwtUtils");
+const upload = require("../config/multerConfig");
 
 // Register a new user
 router.post("/register", userController.register);
@@ -65,6 +65,14 @@ router.delete(
   "/remove-favorite/:authId",
   authMiddleware,
   userController.removeFavorite
+);
+
+// Upload user photo (protected route)
+router.post(
+  "/upload-photo",
+  authMiddleware,
+  upload.single("photo"),
+  userController.uploadPhoto
 );
 
 module.exports = router;

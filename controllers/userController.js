@@ -6,6 +6,7 @@ const twilio = require("twilio");
 const { v4: uuidv4 } = require("uuid");
 const dotenv = require("dotenv");
 const winston = require("winston");
+const upload = require("../config/multerConfig");
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -168,7 +169,7 @@ exports.getUserByAuthId = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
   try {
-    const userId = req.user.userId; // Ensure we're using userId from the decoded token
+    const userId = req.user.userId;
     console.log("User ID from token:", userId); // Log the user ID for debugging
 
     const user = await User.findById(userId);
@@ -232,7 +233,7 @@ exports.deleteUser = async (req, res) => {
 exports.addFavorite = async (req, res) => {
   try {
     const authId = req.params.authId;
-    const { id, title, completed } = req.body;
+    const { title, completed } = req.body;
 
     const user = await User.findOne({ authId });
 
@@ -240,9 +241,13 @@ exports.addFavorite = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    const newFavorite = { id, title, completed, authId };
+    // Ensure the favorite's userAuthId matches the user's authId
+    const newFavorite = { title, completed, userAuthId: authId };
+
+    // Add the new favorite to the user's favorites array
     user.favorites.push(newFavorite);
 
+    // Save the user to trigger the pre-save hook
     await user.save();
 
     res.json(user.favorites);
@@ -275,19 +280,53 @@ exports.removeFavorite = async (req, res) => {
     const authId = req.params.authId;
     const { id } = req.body;
 
+    console.log("Auth ID:", authId);
+    console.log("Favorite ID:", id);
+
     const user = await User.findOne({ authId });
+
+    if (!user) {
+      console.log("User not found");
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    console.log("User found", user);
+
+    const updatedFavorites = user.favorites.filter((fav) => fav.id !== id);
+    user.favorites = updatedFavorites;
+
+    await user.save();
+
+    console.log("Favorite removed:", id);
+    res.json(updatedFavorites);
+  } catch (error) {
+    console.error("Error removing favorite:", error);
+    res.status(500).send("Server error");
+  }
+};
+// Upload image
+exports.uploadPhoto = async (req, res) => {
+  try {
+    const userId = req.user.userId; // Ensure we're using userId from the decoded token
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    user.favorites = user.favorites.filter((fav) => fav.id !== id);
+    if (!req.file || !req.file.path) {
+      return res
+        .status(400)
+        .json({ error: "No file uploaded or invalid file" });
+    }
+
+    // Store the file path or URL in the user's photo field
+    user.photo = req.file.path;
 
     await user.save();
-
-    res.json(user.favorites);
+    res.json({ msg: "Photo uploaded successfully", photo: user.photo });
   } catch (error) {
-    logger.error(`Error removing favorite: ${error.message}`);
+    logger.error(`Error uploading photo: ${error.message}`);
     res.status(500).send("Server error");
   }
 };
