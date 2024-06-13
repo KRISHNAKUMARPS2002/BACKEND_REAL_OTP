@@ -307,21 +307,21 @@ exports.removeFavorite = async (req, res) => {
 // Upload image
 exports.uploadPhoto = async (req, res) => {
   try {
-    const userId = req.user.userId; // Ensure we're using userId from the decoded token
+    const userId = req.user.userId;
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    if (!req.file || !req.file.path) {
+    if (!req.file || !req.file.location) {
       return res
         .status(400)
         .json({ error: "No file uploaded or invalid file" });
     }
 
-    // Store the file path or URL in the user's photo field
-    user.photo = req.file.path;
+    // Store the file URL in the user's photo field
+    user.photo = req.file.location;
 
     await user.save();
     res.json({ msg: "Photo uploaded successfully", photo: user.photo });

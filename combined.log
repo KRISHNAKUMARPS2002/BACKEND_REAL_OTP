@@ -51,3 +51,7 @@
 {"level":"error","message":"Error uploading photo: Cannot read properties of undefined (reading 'path')"}
 {"level":"info","message":"User login attempt: 33335555555"}
 {"level":"info","message":"User logged in: 33335555555"}
+{"level":"info","message":"User login attempt: 33335555555"}
+{"level":"info","message":"User logged in: 33335555555"}
+{"level":"info","message":"User login attempt: 33335555555"}
+{"level":"info","message":"User logged in: 33335555555"}
