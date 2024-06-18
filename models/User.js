@@ -21,6 +21,12 @@ const favoriteSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+    required: true,
+  },
   username: {
     type: String,
     required: true,

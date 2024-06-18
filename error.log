@@ -25,3 +25,17 @@
 {"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 3333555XXXX"}
 {"level":"error","message":"Error registering user: Failed to send OTP"}
 {"level":"error","message":"Error uploading photo: Cannot read properties of undefined (reading 'path')"}
+{"level":"error","message":"Error registering admin: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"admin@example.com\" }"}
+{"level":"error","message":"Error registering admin: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"admin@example.com\" }"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 34546646XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 34546646XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 345466464XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 345466464XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 3454664646XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"error","message":"Error sending OTP via Twilio: Permission to send an SMS has not been enabled for the region indicated by the 'To' number: 234354XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}

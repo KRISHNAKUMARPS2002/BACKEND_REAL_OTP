@@ -55,3 +55,34 @@
 {"level":"info","message":"User logged in: 33335555555"}
 {"level":"info","message":"User login attempt: 33335555555"}
 {"level":"info","message":"User logged in: 33335555555"}
+{"level":"info","message":"Admin registered: adminUser (345466464646)"}
+{"level":"error","message":"Error registering admin: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"admin@example.com\" }"}
+{"level":"error","message":"Error registering admin: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"admin@example.com\" }"}
+{"level":"info","message":"Admin registered: adminUser (345466464647)"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 34546646XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"warn","message":"OTP verification failed for user: 345466464647"}
+{"level":"info","message":"Admin registered: adminUser (345466464649)"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 34546646XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"warn","message":"OTP verification failed for user: 345466464649"}
+{"level":"info","message":"Admin registered: adminUser (3454664646491)"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 345466464XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"warn","message":"OTP verification failed for user: 3454664646491"}
+{"level":"warn","message":"OTP verification failed for admin: 3454664646491"}
+{"level":"info","message":"Admin registered: adminUser (3454664646493)"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 345466464XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"warn","message":"OTP verification failed for admin: 3454664646493"}
+{"level":"warn","message":"OTP verification failed for admin: 3454664646493"}
+{"level":"info","message":"Admin registered: adminUser (34546646464909)"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 3454664646XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"warn","message":"OTP verification failed for admin: 34546646464909"}
+{"level":"info","message":"Admin registered: adminUser (2343545464)"}
+{"level":"error","message":"Error sending OTP via Twilio: Permission to send an SMS has not been enabled for the region indicated by the 'To' number: 234354XXXX"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"info","message":"OTP verified successfully for user: 2343545464"}
+{"level":"info","message":"User login attempt: 2343545464"}
+{"level":"info","message":"User logged in: 2343545464"}

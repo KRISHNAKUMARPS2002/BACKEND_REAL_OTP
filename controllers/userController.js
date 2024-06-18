@@ -81,6 +81,7 @@ exports.register = async (req, res) => {
       password: hashedPassword,
       phoneNumber,
       authId,
+      role: "user",
     });
     logger.info(`User registered: ${username} (${phoneNumber})`);
 

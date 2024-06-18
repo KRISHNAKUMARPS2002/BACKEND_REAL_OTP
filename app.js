@@ -53,9 +53,13 @@ const connectWithRetry = () => {
 
 connectWithRetry();
 
-// Routes
+// User Routes
 const userRoutes = require("./routes/userRoutes");
 app.use("/api/user", userRoutes);
+
+// Admin Routes
+const adminRoutes = require("./routes/adminRoutes");
+app.use("/api/admin", adminRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
