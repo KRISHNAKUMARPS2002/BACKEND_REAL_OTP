@@ -6,18 +6,54 @@ const favoriteSchema = new mongoose.Schema({
     type: Number,
     unique: true,
   },
-  title: {
+  hotelName: {
     type: String,
+    required: true,
+  },
+  location: {
+    type: String,
+    required: true,
+  },
+  images: {
+    type: [String],
     required: false,
   },
-  completed: {
-    type: Boolean,
+  description: {
+    type: String,
+    required: true,
+  },
+  amenities: {
+    type: [String],
+    required: false,
+  },
+  rating: {
+    type: Number,
+    required: false,
+    min: 0, // Optional: Minimum rating value
+    max: 5, // Optional: Maximum rating value
+  },
+  roomTypes: {
+    type: [String],
     required: false,
   },
   userAuthId: {
     type: String,
     required: true,
   },
+});
+
+// Pre-save hook to handle auto-increment for the favoriteSchema id field
+favoriteSchema.pre("save", async function (next) {
+  const favorite = this;
+  if (favorite.isNew) {
+    const counter = await Counter.findOneAndUpdate(
+      { model: "Favorite", field: "id" },
+      { $inc: { count: 1 } },
+      { new: true, upsert: true }
+    );
+    favorite.id = counter.count;
+  }
+  next();
 });
 
 const userSchema = new mongoose.Schema({
@@ -55,20 +91,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-});
-
-// Pre-save hook to handle auto-increment for the favoriteSchema id field
-favoriteSchema.pre("save", async function (next) {
-  const favorite = this;
-  if (favorite.isNew) {
-    const counter = await Counter.findOneAndUpdate(
-      { model: "Favorite", field: "id" },
-      { $inc: { count: 1 } },
-      { new: true, upsert: true }
-    );
-    favorite.id = counter.count;
-  }
-  next();
 });
 
 const User = mongoose.model("User", userSchema);
