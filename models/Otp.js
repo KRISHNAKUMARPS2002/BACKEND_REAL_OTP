@@ -4,8 +4,13 @@ const mongoose = require("mongoose");
 const otpSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
-    required: true,
     unique: true,
+    sparse: true, // Allows the field to be optional and unique
+  },
+  email: {
+    type: String,
+    unique: true,
+    sparse: true, // Allows the field to be optional and unique
   },
   otp: {
     type: String,

@@ -58,19 +58,26 @@ const logger = winston.createLogger({
 });
 
 // Initialize AWS S3 client
-const s3 = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
+let s3;
+try {
+  s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+  logger.info("AWS S3 client initialized successfully");
+} catch (error) {
+  logger.error(`Failed to initialize AWS S3 client: ${error.message}`);
+  process.exit(1);
+}
 
 // Initialize multer with S3 storage
 const upload = multer({
   storage: multerS3({
     s3: s3,
-    bucket: process.env.AWS_BUCKET_NAME, // Add bucket property here
+    bucket: process.env.AWS_BUCKET_NAME,
     metadata: (req, file, cb) => {
       cb(null, { fieldName: file.fieldname });
     },
@@ -98,7 +105,9 @@ const { NODE_ENV, MONGODB_URI, JWT_SECRET, PORT } = process.env;
 
 // Validate required configurations
 if (!MONGODB_URI || !JWT_SECRET) {
-  logger.error("Critical environment variables are missing");
+  logger.error(
+    "Critical environment variables are missing: MONGODB_URI or JWT_SECRET"
+  );
   process.exit(1);
 }
 

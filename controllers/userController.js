@@ -6,8 +6,18 @@ const twilio = require("twilio");
 const { v4: uuidv4 } = require("uuid");
 const dotenv = require("dotenv");
 const winston = require("winston");
-const upload = require("../config/multerConfig");
+const { upload } = require("../config/multerConfig");
+const { S3Client, DeleteObjectsCommand } = require("@aws-sdk/client-s3");
 dotenv.config();
+
+//For deleting images from S3 buckets
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const twilioClient = twilio(
@@ -43,6 +53,9 @@ const sendOtpViaTwilio = async (phoneNumber, otp) => {
       to: phoneNumber,
     });
     logger.info(`OTP sent successfully to ${phoneNumber}`);
+
+    // Add console log to print OTP to console
+    console.log(`OTP for ${phoneNumber}: ${otp}`);
   } catch (error) {
     logger.error(`Error sending OTP via Twilio: ${error.message}`);
     throw new Error("Failed to send OTP");
@@ -121,12 +134,13 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
+// Admin login
 exports.login = async (req, res) => {
   const { phoneNumber, password } = req.body;
 
   try {
     logger.info(`User login attempt: ${phoneNumber}`);
-    const user = await User.findOne({ phoneNumber });
+    const user = await Admin.findOne({ phoneNumber });
 
     if (!user) {
       logger.warn(
@@ -141,9 +155,10 @@ exports.login = async (req, res) => {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
       expiresIn: "1h",
     });
+
     logger.info(`User logged in: ${phoneNumber}`);
     res.json({ token });
   } catch (error) {
@@ -231,31 +246,50 @@ exports.deleteUser = async (req, res) => {
 };
 
 // Add a favorite
-exports.addFavorite = async (req, res) => {
-  try {
-    const authId = req.params.authId;
-    const { title, completed } = req.body;
-
-    const user = await User.findOne({ authId });
-
-    if (!user) {
-      return res.status(404).json({ msg: "User not found" });
+exports.addFavorite = (req, res) => {
+  upload.array("images", 10)(req, res, async (err) => {
+    // Adjust the limit as needed
+    if (err) {
+      logger.error(`Multer error: ${err.message}`);
+      return res.status(500).json({ error: err.message });
     }
 
-    // Ensure the favorite's userAuthId matches the user's authId
-    const newFavorite = { title, completed, userAuthId: authId };
+    try {
+      const authId = req.params.authId;
+      const { hotelName, location, description, amenities, rating, roomTypes } =
+        req.body;
 
-    // Add the new favorite to the user's favorites array
-    user.favorites.push(newFavorite);
+      const user = await User.findOne({ authId });
 
-    // Save the user to trigger the pre-save hook
-    await user.save();
+      if (!user) {
+        return res.status(404).json({ msg: "User not found" });
+      }
 
-    res.json(user.favorites);
-  } catch (error) {
-    logger.error(`Error adding favorite: ${error.message}`);
-    res.status(500).send("Server error");
-  }
+      const images = req.files.map((file) => file.location); // Assuming multer-s3 is set to provide `location`
+
+      const newFavorite = {
+        hotelName,
+        location,
+        images, // Array of image URLs
+        description,
+        amenities,
+        rating,
+        roomTypes,
+        userAuthId: authId,
+      };
+
+      // Add the new favorite to the user's favorites array
+      user.favorites.push(newFavorite);
+
+      // Save the user to trigger the pre-save hook
+      await user.save();
+
+      res.json(user.favorites);
+    } catch (error) {
+      logger.error(`Error adding favorite: ${error.message}`);
+      res.status(500).send("Server error");
+    }
+  });
 };
 
 // Get favorites by authId
@@ -275,36 +309,99 @@ exports.getFavoritesByAuthId = async (req, res) => {
   }
 };
 
+// Update favorites by authId
+exports.updateFavoriteByAuthId = (req, res) => {
+  upload.array("images", 10)(req, res, async (err) => {
+    if (err) {
+      logger.error(`Multer error: ${err.message}`);
+      return res.status(500).json({ error: err.message });
+    }
+
+    try {
+      const authId = req.params.authId;
+      const { hotelName, location, description, amenities, rating, roomTypes } =
+        req.body;
+
+      const user = await User.findOne({ authId });
+
+      if (!user) {
+        return res.status(404).json({ msg: "User not found" });
+      }
+
+      // Assuming there's only one favorite per user, update that favorite
+      if (user.favorites.length > 0) {
+        const favoriteToUpdate = user.favorites[0]; // Assuming only one favorite per user
+        if (hotelName) favoriteToUpdate.hotelName = hotelName;
+        if (location) favoriteToUpdate.location = location;
+        if (description) favoriteToUpdate.description = description;
+        if (amenities) favoriteToUpdate.amenities = amenities;
+        if (rating) favoriteToUpdate.rating = rating;
+        if (roomTypes) favoriteToUpdate.roomTypes = roomTypes;
+
+        if (req.files && req.files.length > 0) {
+          const images = req.files.map((file) => file.location); // Assuming multer-s3 is set up to provide `location`
+          favoriteToUpdate.images = images;
+        }
+
+        await user.save();
+
+        res.json({
+          msg: "Favorite updated successfully",
+          favorite: favoriteToUpdate, // Assuming only one favorite per user
+        });
+      } else {
+        return res.status(404).json({ msg: "Favorite not found" });
+      }
+    } catch (error) {
+      console.error("Error updating favorite:", error);
+      res.status(500).send("Server error");
+    }
+  });
+};
+
 // Remove a favorite
 exports.removeFavorite = async (req, res) => {
   try {
     const authId = req.params.authId;
-    const { id } = req.body;
-
-    console.log("Auth ID:", authId);
-    console.log("Favorite ID:", id);
+    const { index } = req.body; // Use the index to identify the favorite
 
     const user = await User.findOne({ authId });
 
     if (!user) {
-      console.log("User not found");
       return res.status(404).json({ msg: "User not found" });
     }
 
-    console.log("User found", user);
+    if (index < 0 || index >= user.favorites.length) {
+      return res.status(404).json({ msg: "Favorite not found" });
+    }
 
-    const updatedFavorites = user.favorites.filter((fav) => fav.id !== id);
-    user.favorites = updatedFavorites;
+    const favoriteToRemove = user.favorites[index];
+
+    // Remove images from S3
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Delete: {
+        Objects: favoriteToRemove.images.map((imageUrl) => {
+          const Key = imageUrl.split("/").slice(-1)[0]; // Assuming the URL contains the key at the end
+          return { Key };
+        }),
+      },
+    };
+
+    await s3.send(new DeleteObjectsCommand(deleteParams));
+
+    // Remove the favorite from the array
+    user.favorites.splice(index, 1);
 
     await user.save();
 
-    console.log("Favorite removed:", id);
-    res.json(updatedFavorites);
+    res.json(user.favorites);
   } catch (error) {
     console.error("Error removing favorite:", error);
     res.status(500).send("Server error");
   }
 };
+
 // Upload image
 exports.uploadPhoto = async (req, res) => {
   try {

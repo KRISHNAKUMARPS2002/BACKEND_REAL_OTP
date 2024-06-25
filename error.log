@@ -39,3 +39,29 @@
 {"level":"error","message":"Error registering admin: Failed to send OTP"}
 {"level":"error","message":"Error sending OTP via Twilio: Permission to send an SMS has not been enabled for the region indicated by the 'To' number: 234354XXXX"}
 {"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 33335555XXXX"}
+{"level":"error","message":"Error registering user: Failed to send OTP"}
+{"level":"error","message":"Error registering user: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"UZER1@gmail.com\" }"}
+{"level":"error","message":"Error registering user: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"UZER1@gmail.com\" }"}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 33335555XXXX"}
+{"level":"error","message":"Error registering user: Failed to send OTP"}
+{"level":"error","message":"Error updating user: E11000 duplicate key error collection: 66605d81e03c72006e5bd2f8_test.users index: email_1 dup key: { email: \"TestUserz23@example.com\" }"}
+{"level":"error","message":"Error updating user: E11000 duplicate key error collection: 66605d81e03c72006e5bd2f8_test.users index: phoneNumber_1 dup key: { phoneNumber: \"1233333333\" }"}
+{"level":"error","message":"Error adding favorite: User validation failed: favorites.0.description: Path `description` is required., favorites.0.location: Path `location` is required., favorites.0.hotelName: Path `hotelName` is required."}
+{"level":"error","message":"Error sending OTP via Twilio: Invalid 'To' Phone Number: 333355555XXXX"}
+{"level":"error","message":"Error registering user: Failed to send OTP"}
+{"level":"error","message":"Multer error: Unexpected end of form"}
+{"level":"error","message":"Error adding favorite: Cannot read properties of undefined (reading 'map')"}
+{"level":"error","message":"Multer error: Unexpected end of form"}
+{"level":"error","message":"Multer error: Unexpected end of form"}
+{"level":"error","message":"Multer error: Unexpected end of form"}
+{"level":"error","message":"Multer error: Unexpected end of form"}
+{"level":"error","message":"Multer error: Unexpected end of form"}
+{"level":"error","message":"Multer error: Unexpected end of form"}
+{"level":"error","message":"Multer error: Unexpected end of form"}
+{"level":"error","message":"Error adding favorite: Cannot read properties of undefined (reading 'map')"}
+{"level":"error","message":"Error sending OTP via email: No recipients defined"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"error","message":"Error registering admin: E11000 duplicate key error collection: test.otps index: phoneNumber_1 dup key: { phoneNumber: \"9567168252\" }"}
+{"level":"error","message":"Error sending OTP via email: No recipients defined"}
+{"level":"error","message":"Error registering admin: Failed to send OTP"}

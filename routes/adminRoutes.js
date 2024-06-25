@@ -1,52 +1,40 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
-const auth = require("../middleware/authMiddleware");
 const adminAuth = require("../middleware/adminAuth");
+const { uploadHotelImages } = require("../config/multerConfig");
 
 // Register a new admin
 router.post("/register", adminController.registerAdmin);
 
-// Verify OTP for admin
+// Route for verifying OTP during registration
 router.post("/verify-otp", adminController.verifyOTP);
 
-// Admin login
+// Route for admin login
 router.post("/login", adminController.login);
 
-// Get admin profile (protected route)
-router.get("/profile", auth, adminAuth, adminController.getAdminProfile);
+// Middleware to verify token for protected routes
+router.use(adminAuth);
 
-// Add the refresh token endpoint for admin
-router.post("/refresh-token", (req, res) => {
-  const { refreshToken } = req.body;
+// Routes for authenticated admin operations
+router.get("/profile", adminController.getAdminProfile);
+router.put("/update", adminController.updateAdmin);
+router.delete("/delete", adminController.deleteAdmin);
 
-  if (!refreshToken) {
-    return res.status(400).json({ error: "Refresh token is required" });
-  }
+// Routes for hotel operations with file upload middleware
+router.post(
+  "/hotels",
+  adminController.uploadHotelImages,
+  adminController.createHotel
+);
+// Route for updating a hotel
+router.put(
+  "/hotels/:id",
+  adminController.uploadHotelImages,
+  adminController.updateHotel
+);
 
-  try {
-    const decoded = validateToken(refreshToken);
-    if (!decoded) {
-      return res.status(401).json({ error: "Invalid refresh token" });
-    }
-
-    const newTokens = createTokens({ userId: decoded.userId });
-    res.json(newTokens);
-  } catch (error) {
-    res.status(401).json({ error: "Invalid refresh token" });
-  }
-});
-
-// Update admin details (protected route)
-router.put("/update", auth, adminAuth, adminController.updateAdmin);
-
-// Delete an admin (protected route)
-router.delete("/delete", auth, adminAuth, adminController.deleteAdmin);
-
-// Admin-specific routes for managing hotels
-router.post("/hotels", auth, adminAuth, adminController.createHotel);
-router.put("/hotels/:id", auth, adminAuth, adminController.updateHotel);
-router.delete("/hotels/:id", auth, adminAuth, adminController.deleteHotel);
-router.get("/hotels", auth, adminAuth, adminController.getHotels);
+// Route for deleting a hotel
+router.delete("/hotels/:id", adminController.deleteHotel);
 
 module.exports = router;

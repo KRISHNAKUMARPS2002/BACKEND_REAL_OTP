@@ -1,78 +1,42 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controllers/userController");
+const adminController = require("../controllers/adminController");
 const authMiddleware = require("../middleware/authMiddleware");
-const { upload } = require("../config");
+const { upload } = require("../config/multerConfig");
 
-// Register a new user
-router.post("/register", userController.register);
+// Register a new admin
+router.post("/register", adminController.registerAdmin);
 
 // Verify OTP
-router.post("/verify-otp", userController.verifyOTP);
+router.post("/verify-otp", adminController.verifyOTP);
 
-// User login
-router.post("/login", userController.login);
+// Admin login
+router.post("/login", adminController.login);
 
-// Get user profile (protected route)
-router.get("/profile", authMiddleware, userController.getUserProfile);
+// Get admin profile (protected route)
+router.get("/profile", authMiddleware, adminController.getAdminProfile);
 
-// Get user details by authId
-router.get("/:authId", authMiddleware, userController.getUserByAuthId);
+// Update admin details (protected route)
+router.put("/update", authMiddleware, adminController.updateAdmin);
 
-// Add the refresh token endpoint
-router.post("/refresh-token", (req, res) => {
-  const { refreshToken } = req.body;
+// Delete an admin (protected route)
+router.delete("/delete", authMiddleware, adminController.deleteAdmin);
 
-  if (!refreshToken) {
-    return res.status(400).json({ error: "Refresh token is required" });
-  }
-
-  try {
-    const decoded = validateToken(refreshToken);
-    if (!decoded) {
-      return res.status(401).json({ error: "Invalid refresh token" });
-    }
-
-    const newTokens = createTokens({ userId: decoded.userId });
-    res.json(newTokens);
-  } catch (error) {
-    res.status(401).json({ error: "Invalid refresh token" });
-  }
-});
-
-// Update user details (protected route)
-router.put("/update", authMiddleware, userController.updateUser);
-
-// Delete a user (protected route)
-router.delete("/delete", authMiddleware, userController.deleteUser);
-
-// Add a favorite
+// Hotel routes (protected routes)
 router.post(
-  "/add-favorite/:authId",
+  "/hotels",
   authMiddleware,
-  userController.addFavorite
+  adminController.uploadHotelImages,
+  adminController.createHotel
 );
 
-// Get favorites by authId
-router.get(
-  "/favorites/:authId",
+router.put(
+  "/hotels/:id",
   authMiddleware,
-  userController.getFavoritesByAuthId
+  adminController.uploadHotelImages,
+  adminController.updateHotel
 );
 
-// Remove a favorite
-router.delete(
-  "/remove-favorite/:authId",
-  authMiddleware,
-  userController.removeFavorite
-);
-
-// Upload user photo (protected route)
-router.post(
-  "/upload-photo",
-  authMiddleware,
-  upload.single("photo"),
-  userController.uploadPhoto
-);
+router.delete("/hotels/:id", authMiddleware, adminController.deleteHotel);
 
 module.exports = router;

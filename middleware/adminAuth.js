@@ -18,11 +18,12 @@ module.exports = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded token:", decoded); // Log the decoded token for debugging
+    logger.info("Decoded token:", decoded); // Log the decoded token for debugging
     req.user = decoded; // Attach the decoded token to req.user
 
     // Check if the user has an admin role
     if (req.user.role !== "admin") {
+      logger.warn("Access denied. Admins only.");
       return res.status(403).json({ error: "Access denied. Admins only." });
     }
 
