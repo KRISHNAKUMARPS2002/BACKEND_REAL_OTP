@@ -61,6 +61,10 @@ app.use("/api/user", userRoutes);
 const adminRoutes = require("./routes/adminRoutes");
 app.use("/api/admin", adminRoutes);
 
+// Worker Routes
+const workerRoutes = require("./routes/workerRoutes");
+app.use("/api/workers", workerRoutes);
+
 // Global error handler
 app.use((err, req, res, next) => {
   logger.error("An unexpected error occurred:", err);
