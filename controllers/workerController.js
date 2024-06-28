@@ -46,6 +46,11 @@ exports.registerWorker = async (req, res) => {
   }
 
   try {
+    const hotel = await Hotel.findById(hotelId);
+    if (!hotel) {
+      return res.status(404).json({ error: "Hotel not found" });
+    }
+
     const existingWorker = await Worker.findOne({ phoneNumber });
     if (existingWorker) {
       return res
@@ -67,7 +72,6 @@ exports.registerWorker = async (req, res) => {
 
     await newWorker.save();
 
-    // Add worker to the hotel
     await Hotel.findByIdAndUpdate(hotelId, {
       $push: { workers: newWorker._id },
     });
@@ -84,7 +88,7 @@ exports.loginWorker = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const worker = await Worker.findOne({ email }).populate("hotel");
+    const worker = await Worker.findOne({ email });
 
     if (!worker) {
       return res.status(400).json({ message: "Invalid email or password" });
@@ -100,18 +104,7 @@ exports.loginWorker = async (req, res) => {
       expiresIn: "1h",
     });
 
-    res.json({
-      token,
-      worker: {
-        id: worker._id,
-        name: worker.name,
-        position: worker.position,
-        phoneNumber: worker.phoneNumber,
-        email: worker.email,
-        shiftTiming: worker.shiftTiming,
-        hotel: worker.hotel,
-      },
-    });
+    res.json({ token });
   } catch (error) {
     logger.error(`Error logging in worker: ${error.message}`);
     res.status(500).json({ error: error.message });
@@ -119,12 +112,16 @@ exports.loginWorker = async (req, res) => {
 };
 
 exports.getWorkerByCredentials = async (req, res) => {
-  const { name, password, shiftTiming } = req.body;
+  const { name, password, shiftTiming, hotelId } = req.body;
+  logger.info("Request body:", req.body); // Log the request body for debugging
 
   try {
-    const worker = await Worker.findOne({ name, shiftTiming }).populate(
-      "hotel"
-    );
+    const worker = await Worker.findOne({
+      name,
+      shiftTiming,
+      hotel: hotelId,
+    }).populate("hotel");
+    logger.info("Worker found:", worker); // Log the worker found for debugging
 
     if (!worker) {
       return res
@@ -133,6 +130,7 @@ exports.getWorkerByCredentials = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, worker.password);
+    logger.info("Password match:", isMatch); // Log the password match result for debugging
 
     if (!isMatch) {
       return res

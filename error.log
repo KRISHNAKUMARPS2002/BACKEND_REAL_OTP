@@ -65,3 +65,13 @@
 {"level":"error","message":"Error registering admin: E11000 duplicate key error collection: test.otps index: phoneNumber_1 dup key: { phoneNumber: \"9567168252\" }"}
 {"level":"error","message":"Error sending OTP via email: No recipients defined"}
 {"level":"error","message":"Error registering admin: Failed to send OTP"}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}

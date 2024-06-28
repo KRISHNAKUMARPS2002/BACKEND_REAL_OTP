@@ -145,3 +145,25 @@
 {"level":"info","message":"OTP verified successfully for user: 9567168252"}
 {"level":"info","message":"User login attempt: 9567168252"}
 {"level":"info","message":"User logged in: 9567168252"}
+{"level":"info","message":"Worker registered: John Doe (1234567890)"}
+{"level":"info","message":"Request body:"}
+{"level":"info","message":"Worker found:"}
+{"level":"info","message":"Request body:"}
+{"level":"info","message":"Worker found:"}
+{"level":"info","message":"Request body:"}
+{"level":"info","message":"Worker found:"}
+{"level":"info","message":"Request body:"}
+{"level":"info","message":"Worker found:"}
+{"level":"info","message":"Request body:"}
+{"level":"info","message":"Worker found:"}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
+{"level":"info","message":"Worker registered: John Doe (12345678901)"}
