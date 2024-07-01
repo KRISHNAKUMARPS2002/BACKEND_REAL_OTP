@@ -23,7 +23,7 @@ This is a hotel booking application with a Node.js backend and a Flutter fronten
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/hotel-booking-app.git
+    git clone https://github.com/KRISHNAKUMARPS2002/BACKEND_REAL_OTP.git
     cd hotel-booking-app
     ```
 
@@ -281,7 +281,3 @@ The application will be accessible at `http://your-ec2-ip-address/`.
 ## Contributing
 
 Feel free to submit issues or pull requests. For major changes, please open an issue first to discuss what you would like to change.
-
-## License
-
-This project is licensed under the MIT License.
