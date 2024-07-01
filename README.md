@@ -23,7 +23,7 @@ This is a hotel booking application with a Node.js backend and a Flutter fronten
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/KRISHNAKUMARPS2002/BACKEND_REAL_OTP.git
+    git clone https://github.com/your-username/hotel-booking-app.git
     cd hotel-booking-app
     ```
 
@@ -68,6 +68,13 @@ The application will run on `http://localhost:3000`.
     }
     ```
 
+- `POST /api/user/verify-otp` - Verify OTP
+    ```json
+    {
+        "otp": "123456"
+    }
+    ```
+
 - `POST /api/user/login` - User login
     ```json
     {
@@ -75,6 +82,48 @@ The application will run on `http://localhost:3000`.
         "password": "password123"
     }
     ```
+
+- `GET /api/user/profile` - Get user profile (protected)
+    - Headers: `Authorization: Bearer <token>`
+
+- `PUT /api/user/update` - Update user details (protected)
+    - Headers: `Authorization: Bearer <token>`
+    ```json
+    {
+        "username": "newusername",
+        "email": "newemail@example.com"
+    }
+    ```
+
+- `DELETE /api/user/delete` - Delete a user (protected)
+    - Headers: `Authorization: Bearer <token>`
+
+- `POST /api/user/favorites` - Add a favorite (protected)
+    - Headers: `Authorization: Bearer <token>`
+    ```json
+    {
+        "hotelId": "hotel-id-123"
+    }
+    ```
+
+- `GET /api/user/favorites` - Get favorites by authenticated user (protected)
+    - Headers: `Authorization: Bearer <token>`
+
+- `PUT /api/user/favorites/:index` - Update favorite by index (protected)
+    - Headers: `Authorization: Bearer <token>`
+    ```json
+    {
+        "hotelId": "updated-hotel-id-123"
+    }
+    ```
+
+- `DELETE /api/user/favorites/:index` - Remove favorite by index (protected)
+    - Headers: `Authorization: Bearer <token>`
+
+- `POST /api/user/upload-photo` - Upload user photo (protected)
+    - Headers: `Authorization: Bearer <token>`
+    - Body (Form-Data):
+        - `photo`: [Upload an image file]
 
 ### Admin Routes
 
@@ -258,26 +307,4 @@ The backend is deployed on an AWS EC2 instance. Follow these steps for deploymen
             proxy_set_header Host $host;
             proxy_cache_bypass $http_upgrade;
         }
-    }
-    ```
-
-4. **Start Nginx**:
-    ```bash
-    sudo systemctl start nginx
-    sudo systemctl enable nginx
-    ```
-
-5. **Deploy the Application**:
-    - Upload your project files to the EC2 instance.
-    - Install dependencies and start the application on the EC2 instance.
-
-    ```bash
-    npm install
-    npm start
-    ```
-
-The application will be accessible at `http://your-ec2-ip-address/`.
-
-## Contributing
-
-Feel free to submit issues or pull requests. For major changes, please open an issue first to discuss what you would like to change.
+   
