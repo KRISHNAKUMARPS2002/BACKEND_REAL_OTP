@@ -1,42 +1,50 @@
 const express = require("express");
 const router = express.Router();
-const adminController = require("../controllers/adminController");
+const userController = require("../controllers/userController");
 const authMiddleware = require("../middleware/authMiddleware");
 const { upload } = require("../config/multerConfig");
 
-// Register a new admin
-router.post("/register", adminController.registerAdmin);
+// User registration
+router.post("/register", userController.register);
 
 // Verify OTP
-router.post("/verify-otp", adminController.verifyOTP);
+router.post("/verify-otp", userController.verifyOTP);
 
-// Admin login
-router.post("/login", adminController.login);
+// User login
+router.post("/login", userController.login);
 
-// Get admin profile (protected route)
-router.get("/profile", authMiddleware, adminController.getAdminProfile);
+// Get user profile (protected route)
+router.get("/profile", authMiddleware, userController.getUserProfile);
 
-// Update admin details (protected route)
-router.put("/update", authMiddleware, adminController.updateAdmin);
+// Update user details (protected route)
+router.put("/update", authMiddleware, userController.updateUser);
 
-// Delete an admin (protected route)
-router.delete("/delete", authMiddleware, adminController.deleteAdmin);
+// Delete a user (protected route)
+router.delete("/delete", authMiddleware, userController.deleteUser);
 
-// Hotel routes (protected routes)
-router.post(
-  "/hotels",
-  authMiddleware,
-  adminController.uploadHotelImages,
-  adminController.createHotel
-);
+// Favorites routes (protected routes)
+router.post("/favorites", authMiddleware, userController.addFavorite);
+
+router.get("/favorites", authMiddleware, userController.getFavoritesByAuthId);
 
 router.put(
-  "/hotels/:id",
+  "/favorites/:index",
   authMiddleware,
-  adminController.uploadHotelImages,
-  adminController.updateHotel
+  userController.updateFavoriteByAuthId
 );
 
-router.delete("/hotels/:id", authMiddleware, adminController.deleteHotel);
+router.delete(
+  "/favorites/:index",
+  authMiddleware,
+  userController.removeFavorite
+);
+
+// Upload photo (protected route)
+router.post(
+  "/upload-photo",
+  authMiddleware,
+  upload.single("photo"),
+  userController.uploadPhoto
+);
 
 module.exports = router;

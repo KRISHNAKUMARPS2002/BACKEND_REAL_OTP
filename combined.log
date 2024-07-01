@@ -167,3 +167,13 @@
 {"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
 {"level":"error","message":"Error registering worker: Cast to ObjectId failed for value \"your_hotel_id\" (type string) at path \"_id\" for model \"Hotel\""}
 {"level":"info","message":"Worker registered: John Doe (12345678901)"}
+{"level":"info","message":"Admin registered: UZER33345 (3333555555523456745)"}
+{"level":"info","message":"Sending OTP to email: UZER343rrr@gmail.com"}
+{"level":"info","message":"Sending OTP to UZER343rrr@gmail.com"}
+{"level":"info","message":"OTP sent successfully to UZER343rrr@gmail.com"}
+{"level":"info","message":"User login attempt: 333355555552"}
+{"level":"warn","message":"Login failed: User with phone number 333355555552 not found"}
+{"level":"info","message":"User login attempt: 3333555555523456745"}
+{"level":"warn","message":"Login failed: Incorrect password for user 3333555555523456745"}
+{"level":"info","message":"User login attempt: 3333555555523456745"}
+{"level":"info","message":"User logged in: 3333555555523456745"}
