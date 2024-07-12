@@ -246,53 +246,41 @@ exports.deleteUser = async (req, res) => {
 };
 
 // Add a favorite
-exports.addFavorite = (req, res) => {
-  upload.array("images", 10)(req, res, async (err) => {
-    // Adjust the limit as needed
-    if (err) {
-      logger.error(`Multer error: ${err.message}`);
-      return res.status(500).json({ error: err.message });
+exports.addFavorite = async (req, res) => {
+  try {
+    const authId = req.params.authId;
+    const { hotelName, location, description, amenities, rating, roomTypes } =
+      req.body;
+
+    const user = await User.findOne({ authId });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
     }
 
-    try {
-      const authId = req.params.authId;
-      const { hotelName, location, description, amenities, rating, roomTypes } =
-        req.body;
+    const newFavorite = {
+      hotelName,
+      location,
+      description,
+      amenities,
+      rating,
+      roomTypes,
+      userAuthId: authId,
+    };
 
-      const user = await User.findOne({ authId });
+    // Add the new favorite to the user's favorites array
+    user.favorites.push(newFavorite);
 
-      if (!user) {
-        return res.status(404).json({ msg: "User not found" });
-      }
+    // Save the user to trigger the pre-save hook
+    await user.save();
 
-      const images = req.files.map((file) => file.location); // Assuming multer-s3 is set to provide `location`
-
-      const newFavorite = {
-        hotelName,
-        location,
-        images, // Array of image URLs
-        description,
-        amenities,
-        rating,
-        roomTypes,
-        userAuthId: authId,
-      };
-
-      // Add the new favorite to the user's favorites array
-      user.favorites.push(newFavorite);
-
-      // Save the user to trigger the pre-save hook
-      await user.save();
-
-      res.json(user.favorites);
-    } catch (error) {
-      logger.error(`Error adding favorite: ${error.message}`);
-      res.status(500).send("Server error");
-    }
-  });
+    res.json(user.favorites);
+  } catch (error) {
+    logger.error(`Error adding favorite: ${error.message}`);
+    res.status(500).send("Server error");
+  }
 };
 
-// Get favorites by authId
 exports.getFavoritesByAuthId = async (req, res) => {
   try {
     const authId = req.params.authId;
@@ -309,57 +297,43 @@ exports.getFavoritesByAuthId = async (req, res) => {
   }
 };
 
-// Update favorites by authId
-exports.updateFavoriteByAuthId = (req, res) => {
-  upload.array("images", 10)(req, res, async (err) => {
-    if (err) {
-      logger.error(`Multer error: ${err.message}`);
-      return res.status(500).json({ error: err.message });
+exports.updateFavoriteByAuthId = async (req, res) => {
+  try {
+    const authId = req.params.authId;
+    const { hotelName, location, description, amenities, rating, roomTypes } =
+      req.body;
+
+    const user = await User.findOne({ authId });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
     }
 
-    try {
-      const authId = req.params.authId;
-      const { hotelName, location, description, amenities, rating, roomTypes } =
-        req.body;
+    // Assuming there's only one favorite per user, update that favorite
+    if (user.favorites.length > 0) {
+      const favoriteToUpdate = user.favorites[0]; // Assuming only one favorite per user
+      if (hotelName) favoriteToUpdate.hotelName = hotelName;
+      if (location) favoriteToUpdate.location = location;
+      if (description) favoriteToUpdate.description = description;
+      if (amenities) favoriteToUpdate.amenities = amenities;
+      if (rating) favoriteToUpdate.rating = rating;
+      if (roomTypes) favoriteToUpdate.roomTypes = roomTypes;
 
-      const user = await User.findOne({ authId });
+      await user.save();
 
-      if (!user) {
-        return res.status(404).json({ msg: "User not found" });
-      }
-
-      // Assuming there's only one favorite per user, update that favorite
-      if (user.favorites.length > 0) {
-        const favoriteToUpdate = user.favorites[0]; // Assuming only one favorite per user
-        if (hotelName) favoriteToUpdate.hotelName = hotelName;
-        if (location) favoriteToUpdate.location = location;
-        if (description) favoriteToUpdate.description = description;
-        if (amenities) favoriteToUpdate.amenities = amenities;
-        if (rating) favoriteToUpdate.rating = rating;
-        if (roomTypes) favoriteToUpdate.roomTypes = roomTypes;
-
-        if (req.files && req.files.length > 0) {
-          const images = req.files.map((file) => file.location); // Assuming multer-s3 is set up to provide `location`
-          favoriteToUpdate.images = images;
-        }
-
-        await user.save();
-
-        res.json({
-          msg: "Favorite updated successfully",
-          favorite: favoriteToUpdate, // Assuming only one favorite per user
-        });
-      } else {
-        return res.status(404).json({ msg: "Favorite not found" });
-      }
-    } catch (error) {
-      console.error("Error updating favorite:", error);
-      res.status(500).send("Server error");
+      res.json({
+        msg: "Favorite updated successfully",
+        favorite: favoriteToUpdate, // Assuming only one favorite per user
+      });
+    } else {
+      return res.status(404).json({ msg: "Favorite not found" });
     }
-  });
+  } catch (error) {
+    logger.error(`Error updating favorite: ${error.message}`);
+    res.status(500).send("Server error");
+  }
 };
 
-// Remove a favorite
 exports.removeFavorite = async (req, res) => {
   try {
     const authId = req.params.authId;
@@ -375,21 +349,6 @@ exports.removeFavorite = async (req, res) => {
       return res.status(404).json({ msg: "Favorite not found" });
     }
 
-    const favoriteToRemove = user.favorites[index];
-
-    // Remove images from S3
-    const deleteParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Delete: {
-        Objects: favoriteToRemove.images.map((imageUrl) => {
-          const Key = imageUrl.split("/").slice(-1)[0]; // Assuming the URL contains the key at the end
-          return { Key };
-        }),
-      },
-    };
-
-    await s3.send(new DeleteObjectsCommand(deleteParams));
-
     // Remove the favorite from the array
     user.favorites.splice(index, 1);
 
@@ -397,7 +356,7 @@ exports.removeFavorite = async (req, res) => {
 
     res.json(user.favorites);
   } catch (error) {
-    console.error("Error removing favorite:", error);
+    logger.error(`Error removing favorite: ${error.message}`);
     res.status(500).send("Server error");
   }
 };
