@@ -23,18 +23,22 @@ router.put("/update", authMiddleware, userController.updateUser);
 router.delete("/delete", authMiddleware, userController.deleteUser);
 
 // Favorites routes (protected routes)
-router.post("/favorites", authMiddleware, userController.addFavorite);
+router.post("/favorites/:authId", authMiddleware, userController.addFavorite);
 
-router.get("/favorites", authMiddleware, userController.getFavoritesByAuthId);
+router.get(
+  "/favorites/:authId",
+  authMiddleware,
+  userController.getFavoritesByAuthId
+);
 
 router.put(
-  "/favorites/:index",
+  "/favorites/:authId/:index",
   authMiddleware,
   userController.updateFavoriteByAuthId
 );
 
 router.delete(
-  "/favorites/:index",
+  "/favorites/:authId/:index",
   authMiddleware,
   userController.removeFavorite
 );

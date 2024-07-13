@@ -6,11 +6,10 @@ const twilio = require("twilio");
 const { v4: uuidv4 } = require("uuid");
 const dotenv = require("dotenv");
 const winston = require("winston");
-const { upload } = require("../config/multerConfig");
-const { S3Client, DeleteObjectsCommand } = require("@aws-sdk/client-s3");
+const { S3Client } = require("@aws-sdk/client-s3");
 dotenv.config();
 
-//For deleting images from S3 buckets
+// For deleting images from S3 buckets
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -134,13 +133,13 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
-// Admin login
+// User login
 exports.login = async (req, res) => {
   const { phoneNumber, password } = req.body;
 
   try {
     logger.info(`User login attempt: ${phoneNumber}`);
-    const user = await Admin.findOne({ phoneNumber });
+    const user = await User.findOne({ phoneNumber });
 
     if (!user) {
       logger.warn(
@@ -197,7 +196,7 @@ exports.getUserProfile = async (req, res) => {
     res.json(user);
   } catch (error) {
     logger.error(`Error fetching user profile: ${error.message}`);
-    res.status(500).send("Server error");
+    res.status(500).send("Server error");
   }
 };
 
@@ -281,9 +280,11 @@ exports.addFavorite = async (req, res) => {
   }
 };
 
+// Get all favorites for a specific authId
 exports.getFavoritesByAuthId = async (req, res) => {
   try {
     const authId = req.params.authId;
+
     const user = await User.findOne({ authId });
 
     if (!user) {
@@ -297,9 +298,11 @@ exports.getFavoritesByAuthId = async (req, res) => {
   }
 };
 
+// Update a favorite by index
 exports.updateFavoriteByAuthId = async (req, res) => {
   try {
     const authId = req.params.authId;
+    const { index } = req.params;
     const { hotelName, location, description, amenities, rating, roomTypes } =
       req.body;
 
@@ -309,35 +312,34 @@ exports.updateFavoriteByAuthId = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    // Assuming there's only one favorite per user, update that favorite
-    if (user.favorites.length > 0) {
-      const favoriteToUpdate = user.favorites[0]; // Assuming only one favorite per user
-      if (hotelName) favoriteToUpdate.hotelName = hotelName;
-      if (location) favoriteToUpdate.location = location;
-      if (description) favoriteToUpdate.description = description;
-      if (amenities) favoriteToUpdate.amenities = amenities;
-      if (rating) favoriteToUpdate.rating = rating;
-      if (roomTypes) favoriteToUpdate.roomTypes = roomTypes;
-
-      await user.save();
-
-      res.json({
-        msg: "Favorite updated successfully",
-        favorite: favoriteToUpdate, // Assuming only one favorite per user
-      });
-    } else {
-      return res.status(404).json({ msg: "Favorite not found" });
+    if (index < 0 || index >= user.favorites.length) {
+      return res.status(400).json({ msg: "Invalid favorite index" });
     }
+
+    user.favorites[index] = {
+      hotelName: hotelName || user.favorites[index].hotelName,
+      location: location || user.favorites[index].location,
+      description: description || user.favorites[index].description,
+      amenities: amenities || user.favorites[index].amenities,
+      rating: rating || user.favorites[index].rating,
+      roomTypes: roomTypes || user.favorites[index].roomTypes,
+      userAuthId: authId,
+    };
+
+    await user.save();
+
+    res.json(user.favorites);
   } catch (error) {
     logger.error(`Error updating favorite: ${error.message}`);
     res.status(500).send("Server error");
   }
 };
 
+// Remove a favorite by index
 exports.removeFavorite = async (req, res) => {
   try {
     const authId = req.params.authId;
-    const { index } = req.body; // Use the index to identify the favorite
+    const { index } = req.params;
 
     const user = await User.findOne({ authId });
 
@@ -346,10 +348,9 @@ exports.removeFavorite = async (req, res) => {
     }
 
     if (index < 0 || index >= user.favorites.length) {
-      return res.status(404).json({ msg: "Favorite not found" });
+      return res.status(400).json({ msg: "Invalid favorite index" });
     }
 
-    // Remove the favorite from the array
     user.favorites.splice(index, 1);
 
     await user.save();
@@ -361,31 +362,23 @@ exports.removeFavorite = async (req, res) => {
   }
 };
 
-// Upload image
 exports.uploadPhoto = async (req, res) => {
   try {
     const userId = req.user.userId;
+    const photoUrl = req.file.location;
+
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    if (!req.file || !req.file.location) {
-      return res
-        .status(400)
-        .json({ error: "No file uploaded or invalid file" });
-    }
-
-    // Store the file URL in the user's photo field
-    user.photo = req.file.location;
+    user.photo = photoUrl;
 
     await user.save();
-    res.json({ msg: "Photo uploaded successfully", photo: user.photo });
+    res.json({ msg: "Photo uploaded successfully", photoUrl });
   } catch (error) {
     logger.error(`Error uploading photo: ${error.message}`);
     res.status(500).send("Server error");
   }
 };
-
-module.exports = exports;

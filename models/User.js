@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-const Counter = require("../models/Counter"); // Ensure this path is correct based on your project structure
+const { Schema } = mongoose;
 
-const favoriteSchema = new mongoose.Schema({
+const favoriteSchema = new Schema({
   id: {
     type: Number,
     unique: true,
@@ -29,8 +29,8 @@ const favoriteSchema = new mongoose.Schema({
   rating: {
     type: Number,
     required: false,
-    min: 0, // Optional: Minimum rating value
-    max: 5, // Optional: Maximum rating value
+    min: 0,
+    max: 5,
   },
   roomTypes: {
     type: [String],
@@ -42,7 +42,6 @@ const favoriteSchema = new mongoose.Schema({
   },
 });
 
-// Pre-save hook to handle auto-increment for the favoriteSchema id field
 favoriteSchema.pre("save", async function (next) {
   const favorite = this;
   if (favorite.isNew) {
@@ -56,7 +55,7 @@ favoriteSchema.pre("save", async function (next) {
   next();
 });
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
   role: {
     type: String,
     enum: ["user", "admin"],
@@ -90,6 +89,18 @@ const userSchema = new mongoose.Schema({
   photo: {
     type: String,
     required: false,
+  },
+  Userbluetick: {
+    type: Boolean,
+    default: false,
+  },
+  usercheckindetails: {
+    type: [String],
+    default: [],
+  },
+  LoyalityCheck: {
+    type: [String],
+    default: [],
   },
 });
 
