@@ -22,6 +22,27 @@ router.put("/update", authMiddleware, userController.updateUser);
 // Delete a user (protected route)
 router.delete("/delete", authMiddleware, userController.deleteUser);
 
+// Verify user blue tick (protected route)
+router.post(
+  "/verify-bluetick",
+  authMiddleware,
+  userController.verifyUserBlueTick
+);
+
+// Add user check-in details (protected route)
+router.post(
+  "/checkin-details",
+  authMiddleware,
+  userController.addUserCheckinDetails
+);
+
+// Check loyalty status (protected route)
+router.get(
+  "/loyalty-status",
+  authMiddleware,
+  userController.checkLoyaltyStatus
+);
+
 // Favorites routes (protected routes)
 router.post("/favorites/:authId", authMiddleware, userController.addFavorite);
 

@@ -382,3 +382,73 @@ exports.uploadPhoto = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+// Extra function
+
+//UserBlueTrick
+exports.verifyUserBlueTick = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    user.Userbluetick = true; // Ensure the field name matches your schema
+    await user.save();
+
+    res.json({ msg: "User verified with blue tick" });
+  } catch (error) {
+    logger.error(`Error verifying user blue tick: ${error.message}`);
+    res.status(500).send("Server error");
+  }
+};
+
+// User Check in details
+exports.addUserCheckinDetails = async (req, res) => {
+  const userId = req.user.userId;
+  const { hotelId, checkinDate, checkoutDate, roomNumber } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    const checkinDetails = {
+      hotelId,
+      checkinDate,
+      checkoutDate,
+      roomNumber,
+    };
+
+    user.checkinDetails.push(checkinDetails);
+    await user.save();
+
+    res.json({ msg: "Check-in details added successfully" });
+  } catch (error) {
+    logger.error(`Error adding check-in details: ${error.message}`);
+    res.status(500).send("Server error");
+  }
+};
+
+// Loyalty status
+exports.checkLoyaltyStatus = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.json(user.loyaltyStatus);
+  } catch (error) {
+    logger.error(`Error checking loyalty status: ${error.message}`);
+    res.status(500).send("Server error");
+  }
+};

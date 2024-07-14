@@ -1,6 +1,44 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
+// Check-in details schema
+const checkinDetailsSchema = new Schema({
+  hotelId: {
+    type: String,
+    required: true,
+  },
+  checkinDate: {
+    type: Date,
+    required: true,
+  },
+  checkoutDate: {
+    type: Date,
+    required: true,
+  },
+  roomNumber: {
+    type: String,
+    required: true,
+  },
+});
+
+// Loyalty status schema
+const loyaltyStatusSchema = new Schema({
+  status: {
+    type: String,
+    enum: ["Bronze", "Silver", "Gold", "Platinum"],
+    default: "Bronze",
+  },
+  totalStays: {
+    type: Number,
+    default: 0,
+  },
+  totalSpending: {
+    type: Number,
+    default: 0,
+  },
+});
+
+// Favorite schema
 const favoriteSchema = new Schema({
   id: {
     type: Number,
@@ -55,6 +93,7 @@ favoriteSchema.pre("save", async function (next) {
   next();
 });
 
+// User schema
 const userSchema = new Schema({
   role: {
     type: String,
@@ -94,14 +133,8 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  usercheckindetails: {
-    type: [String],
-    default: [],
-  },
-  LoyalityCheck: {
-    type: [String],
-    default: [],
-  },
+  checkinDetails: [checkinDetailsSchema],
+  loyaltyStatus: loyaltyStatusSchema,
 });
 
 const User = mongoose.model("User", userSchema);
