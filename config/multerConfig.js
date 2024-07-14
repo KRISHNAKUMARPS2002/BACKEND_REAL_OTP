@@ -73,14 +73,6 @@ try {
   process.exit(1);
 }
 
-// Validate AWS_BUCKET_NAME
-if (!process.env.AWS_BUCKET_NAME) {
-  logger.error("Critical environment variable is missing: AWS_BUCKET_NAME");
-  process.exit(1);
-} else {
-  logger.info(`Using AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME}`);
-}
-
 // Initialize multer with S3 storage
 const upload = multer({
   storage: multerS3({
@@ -90,7 +82,7 @@ const upload = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      cb(null, `${Date.now().toString()}-${file.originalname}`);
+      cb(null, ` ${Date.now().toString()}-${file.originalname}`);
     },
   }),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
