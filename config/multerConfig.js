@@ -77,6 +77,8 @@ try {
 if (!process.env.AWS_BUCKET_NAME) {
   logger.error("Critical environment variable is missing: AWS_BUCKET_NAME");
   process.exit(1);
+} else {
+  logger.info(`Using AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME}`);
 }
 
 // Initialize multer with S3 storage
