@@ -10,6 +10,7 @@ This is a hotel booking application with a Node.js backend and a Flutter fronten
 4. [Running the Project](#running-the-project)
 5. [API Endpoints](#api-endpoints)
 6. [Testing with Postman](#testing-with-postman)
+7. [Deployment](#deployment)
 
 ## Prerequisites
 
@@ -98,7 +99,21 @@ The application will run on `http://localhost:3000`.
 - `DELETE /api/user/delete` - Delete a user (protected)
     - Headers: `Authorization: Bearer <token>`
 
-- `POST /api/user/favorites` - Add a favorite (protected)
+- `POST /api/user/verify-bluetick` - Verify user blue tick (protected)
+    - Headers: `Authorization: Bearer <token>`
+
+- `POST /api/user/checkin-details` - Add user check-in details (protected)
+    - Headers: `Authorization: Bearer <token>`
+    ```json
+    {
+        "checkinDetails": "details"
+    }
+    ```
+
+- `GET /api/user/loyalty-status` - Check loyalty status (protected)
+    - Headers: `Authorization: Bearer <token>`
+
+- `POST /api/user/favorites/:authId` - Add a favorite (protected)
     - Headers: `Authorization: Bearer <token>`
     ```json
     {
@@ -106,10 +121,10 @@ The application will run on `http://localhost:3000`.
     }
     ```
 
-- `GET /api/user/favorites` - Get favorites by authenticated user (protected)
+- `GET /api/user/favorites/:authId` - Get favorites by authenticated user (protected)
     - Headers: `Authorization: Bearer <token>`
 
-- `PUT /api/user/favorites/:index` - Update favorite by index (protected)
+- `PUT /api/user/favorites/:authId/:index` - Update favorite by index (protected)
     - Headers: `Authorization: Bearer <token>`
     ```json
     {
@@ -117,7 +132,7 @@ The application will run on `http://localhost:3000`.
     }
     ```
 
-- `DELETE /api/user/favorites/:index` - Remove favorite by index (protected)
+- `DELETE /api/user/favorites/:authId/:index` - Remove favorite by index (protected)
     - Headers: `Authorization: Bearer <token>`
 
 - `POST /api/user/upload-photo` - Upload user photo (protected)
@@ -291,20 +306,39 @@ The backend is deployed on an AWS EC2 instance. Follow these steps for deploymen
     sudo yum install -y nodejs npm nginx
     ```
 
-3. **Configure Nginx**:
-    Edit the Nginx configuration file to proxy requests to the Node.js application running on port 3000.
+3. **Clone the Repository on EC2**:
+    ```bash
+    git clone https://github.com/your-username/hotel-booking-app.git
+    cd hotel-booking-app
+    ```
 
-    ```nginx
-    server {
-        listen 80;
-        server_name your-ec2-ip-address;
+4. **Install Dependencies**:
+    ```bash
+    npm install
+    ```
 
-        location / {
-            proxy_pass http://localhost:3000;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
-        }
-   
+5. **Set Up Environment Variables**:
+    ```bash
+    nano .env
+    # Add your environment variables
+    ```
+
+6. **Start the Server**:
+    ```bash
+    npm start
+    ```
+
+7. **Configure Nginx**:
+    ```bash
+    sudo nano /etc/nginx/nginx.conf
+    # Update the server block to reverse proxy to your Node.js app
+    ```
+
+8. **Restart Nginx**:
+    ```bash
+    sudo systemctl restart nginx
+    ```
+
+Your application should now be accessible at `http://your-ec2-ip-address`.
+
+
