@@ -73,6 +73,12 @@ try {
   process.exit(1);
 }
 
+// Validate AWS_BUCKET_NAME
+if (!process.env.AWS_BUCKET_NAME) {
+  logger.error("Critical environment variable is missing: AWS_BUCKET_NAME");
+  process.exit(1);
+}
+
 // Initialize multer with S3 storage
 const upload = multer({
   storage: multerS3({
