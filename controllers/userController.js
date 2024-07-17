@@ -251,6 +251,9 @@ exports.addFavorite = async (req, res) => {
     const { hotelName, location, description, amenities, rating, roomTypes } =
       req.body;
 
+    console.log("Request Params:", req.params);
+    console.log("Request Body:", req.body);
+
     const user = await User.findOne({ authId });
 
     if (!user) {
@@ -339,25 +342,33 @@ exports.updateFavoriteByAuthId = async (req, res) => {
 exports.removeFavorite = async (req, res) => {
   try {
     const authId = req.params.authId;
-    const { index } = req.params;
+    const index = parseInt(req.params.index, 10);
+
+    console.log(
+      `Received request to remove favorite at index: ${index} for user: ${authId}`
+    );
 
     const user = await User.findOne({ authId });
 
     if (!user) {
+      console.log("User not found");
       return res.status(404).json({ msg: "User not found" });
     }
 
-    if (index < 0 || index >= user.favorites.length) {
+    if (isNaN(index) || index < 0 || index >= user.favorites.length) {
+      console.log("Invalid favorite index");
       return res.status(400).json({ msg: "Invalid favorite index" });
     }
 
+    console.log("Favorites before removal:", user.favorites);
     user.favorites.splice(index, 1);
+    console.log("Favorites after removal:", user.favorites);
 
     await user.save();
 
     res.json(user.favorites);
   } catch (error) {
-    logger.error(`Error removing favorite: ${error.message}`);
+    console.error(`Error removing favorite: ${error.message}`);
     res.status(500).send("Server error");
   }
 };

@@ -1,24 +1,14 @@
+// models/user.js
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const Counter = require("./Counter");
 
 // Check-in details schema
 const checkinDetailsSchema = new Schema({
-  hotelId: {
-    type: String,
-    required: true,
-  },
-  checkinDate: {
-    type: Date,
-    required: true,
-  },
-  checkoutDate: {
-    type: Date,
-    required: true,
-  },
-  roomNumber: {
-    type: String,
-    required: true,
-  },
+  hotelId: { type: String, required: true },
+  checkinDate: { type: Date, required: true },
+  checkoutDate: { type: Date, required: true },
+  roomNumber: { type: String, required: true },
 });
 
 // Loyalty status schema
@@ -28,56 +18,21 @@ const loyaltyStatusSchema = new Schema({
     enum: ["Bronze", "Silver", "Gold", "Platinum"],
     default: "Bronze",
   },
-  totalStays: {
-    type: Number,
-    default: 0,
-  },
-  totalSpending: {
-    type: Number,
-    default: 0,
-  },
+  totalStays: { type: Number, default: 0 },
+  totalSpending: { type: Number, default: 0 },
 });
 
 // Favorite schema
 const favoriteSchema = new Schema({
-  id: {
-    type: Number,
-    unique: true,
-  },
-  hotelName: {
-    type: String,
-    required: true,
-  },
-  location: {
-    type: String,
-    required: true,
-  },
-  images: {
-    type: [String],
-    required: false,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  amenities: {
-    type: [String],
-    required: false,
-  },
-  rating: {
-    type: Number,
-    required: false,
-    min: 0,
-    max: 5,
-  },
-  roomTypes: {
-    type: [String],
-    required: false,
-  },
-  userAuthId: {
-    type: String,
-    required: true,
-  },
+  id: { type: Number, unique: true },
+  hotelName: { type: String, required: true },
+  location: { type: String, required: true },
+  images: { type: [String], required: false },
+  description: { type: String, required: true },
+  amenities: { type: [String], required: false },
+  rating: { type: Number, required: false, min: 0, max: 5 },
+  roomTypes: { type: [String], required: false },
+  userAuthId: { type: String, required: true },
 });
 
 favoriteSchema.pre("save", async function (next) {
@@ -101,38 +56,14 @@ const userSchema = new Schema({
     default: "user",
     required: true,
   },
-  username: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  authId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  phoneNumber: {
-    type: String,
-    required: true,
-    unique: true,
-  },
+  username: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  authId: { type: String, required: true, unique: true },
+  phoneNumber: { type: String, required: true, unique: true },
   favorites: [favoriteSchema],
-  photo: {
-    type: String,
-    required: false,
-  },
-  Userbluetick: {
-    type: Boolean,
-    default: false,
-  },
+  photo: { type: String, required: false },
+  Userbluetick: { type: Boolean, default: false },
   checkinDetails: [checkinDetailsSchema],
   loyaltyStatus: loyaltyStatusSchema,
 });
