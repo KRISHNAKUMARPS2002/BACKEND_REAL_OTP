@@ -228,11 +228,11 @@ The application will run on `http://localhost:3000`.
 
 ## Testing with Postman
 
-1. **Set Base URL**: The base URL for your API is `http://13.233.156.216:3000`.
+1. **Set Base URL**: The base URL for your API is `http://13.233.156.216`.
 
 2. **Register a New User**:
     - Method: `POST`
-    - URL: `http://13.233.156.216:3000/api/user/register`
+    - URL: `http://13.233.156.216/api/user/register`
     - Body (JSON):
         ```json
         {
@@ -244,7 +244,7 @@ The application will run on `http://localhost:3000`.
 
 3. **User Login**:
     - Method: `POST`
-    - URL: `http://13.233.156.216:3000/api/user/login`
+    - URL: `http://13.233.156.216/api/user/login`
     - Body (JSON):
         ```json
         {
@@ -255,7 +255,7 @@ The application will run on `http://localhost:3000`.
 
 4. **Register a New Admin**:
     - Method: `POST`
-    - URL: `http://13.233.156.216:3000/api/admin/register`
+    - URL: `http://13.233.156.216/api/admin/register`
     - Body (JSON):
         ```json
         {
@@ -267,7 +267,7 @@ The application will run on `http://localhost:3000`.
 
 5. **Admin Login**:
     - Method: `POST`
-    - URL: `http://13.233.156.216:3000/api/admin/login`
+    - URL: `http://13.233.156.216/api/admin/login`
     - Body (JSON):
         ```json
         {
@@ -281,7 +281,7 @@ The application will run on `http://localhost:3000`.
 
 7. **Create a New Hotel**:
     - Method: `POST`
-    - URL: `http://13.233.156.216:3000/api/admin/hotels`
+    - URL: `http://13.233.156.216/api/admin/hotels`
     - Headers:
         - `Authorization`: `Bearer <token>`
     - Body (Form-Data):
