@@ -161,7 +161,7 @@ The application will run on `http://localhost:3000`.
 - `POST /api/admin/login` - Admin login
     ```json
     {
-        "email": "admin@example.com",
+        "phoneNumber": "999999999999",
         "password": "adminpassword123"
     }
     ```
