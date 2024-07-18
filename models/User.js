@@ -66,6 +66,7 @@ const userSchema = new Schema({
   Userbluetick: { type: Boolean, default: false },
   checkinDetails: [checkinDetailsSchema],
   loyaltyStatus: loyaltyStatusSchema,
+  paymentStatus: { type: Boolean, default: false },
 });
 
 const User = mongoose.model("User", userSchema);
