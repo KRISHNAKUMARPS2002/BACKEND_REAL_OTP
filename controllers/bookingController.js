@@ -21,6 +21,18 @@ if (process.env.NODE_ENV !== "production") {
   );
 }
 
+// Helper function to find a hotel by name
+const findHotelByName = async (hotelName) => {
+  return await Hotel.findOne({
+    name: { $regex: new RegExp(hotelName, "i") },
+  });
+};
+
+// Helper function to find a user by ID
+const findUserById = async (userId) => {
+  return await User.findById(userId);
+};
+
 exports.createBooking = async (req, res) => {
   try {
     const {
@@ -32,11 +44,8 @@ exports.createBooking = async (req, res) => {
       totalPrice,
     } = req.body;
 
-    // Use a case-insensitive regular expression for hotel name search
-    const hotel = await Hotel.findOne({
-      name: { $regex: new RegExp(hotelName, "i") },
-    });
-    const user = await User.findById(userId);
+    const hotel = await findHotelByName(hotelName);
+    const user = await findUserById(userId);
 
     if (!hotel) {
       return res.status(404).json({ msg: "Hotel not found" });
@@ -57,11 +66,9 @@ exports.createBooking = async (req, res) => {
 
     await newBooking.save();
 
-    // Save booking reference in user model
     user.bookings.push(newBooking._id);
     await user.save();
 
-    // Save booking reference in hotel model
     hotel.bookings.push(newBooking._id);
     await hotel.save();
 
@@ -85,7 +92,6 @@ exports.editBooking = async (req, res) => {
       return res.status(404).json({ msg: "Booking not found" });
     }
 
-    // Update booking details
     booking.checkinDate = checkinDate || booking.checkinDate;
     booking.checkoutDate = checkoutDate || booking.checkoutDate;
     booking.roomType = roomType || booking.roomType;

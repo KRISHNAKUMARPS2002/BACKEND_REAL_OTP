@@ -234,7 +234,15 @@ exports.deleteAdmin = async (req, res) => {
 exports.uploadHotelImages = upload.array("images", 10); // max 10 images
 
 exports.createHotel = async (req, res) => {
-  const { name, location, amenities, description, contactNumber } = req.body;
+  const {
+    name,
+    location,
+    address,
+    propertyDetails,
+    amenities,
+    description,
+    contactNumber,
+  } = req.body;
   const imageUrls = req.files.map((file) => file.location); // Assuming Multer uploads images correctly
 
   try {
@@ -242,8 +250,10 @@ exports.createHotel = async (req, res) => {
     const hotel = new Hotel({
       name,
       location,
+      address,
+      propertyDetails: propertyDetails || {},
       owner: req.user.userId,
-      amenities: amenities.split(","),
+      amenities: amenities ? amenities.split(",") : [],
       description,
       contactNumber,
       images: imageUrls, // Assigning S3 image URLs
@@ -259,7 +269,15 @@ exports.createHotel = async (req, res) => {
 
 exports.updateHotel = async (req, res) => {
   const { id } = req.params;
-  const { name, location, amenities, description, contactNumber } = req.body;
+  const {
+    name,
+    location,
+    address,
+    propertyDetails,
+    amenities,
+    description,
+    contactNumber,
+  } = req.body;
 
   try {
     const hotel = await Hotel.findById(id);
@@ -271,17 +289,30 @@ exports.updateHotel = async (req, res) => {
       return res.status(403).json({ error: "Unauthorized" });
     }
 
-    // Update hotel details
-    if (name) hotel.name = name;
-    if (location) hotel.location = location;
-    if (amenities) hotel.amenities = amenities.split(",");
-    if (description) hotel.description = description;
-    if (contactNumber) hotel.contactNumber = contactNumber;
+    hotel.name = name || hotel.name;
+    hotel.location = location || hotel.location;
+    hotel.address = address || hotel.address;
+    hotel.propertyDetails = propertyDetails || hotel.propertyDetails;
+    hotel.amenities = amenities ? amenities.split(",") : hotel.amenities;
+    hotel.description = description || hotel.description;
+    hotel.contactNumber = contactNumber || hotel.contactNumber;
 
-    // If new images are uploaded, add them to the hotel and update image URLs
+    // Handle image updates if any
     if (req.files.length > 0) {
+      // Delete old images from S3
+      const deleteParams = hotel.images.map((imageUrl) => ({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: imageUrl.split("/").pop(),
+      }));
+
+      const deletePromises = deleteParams.map((param) =>
+        s3.send(new DeleteObjectCommand(param))
+      );
+      await Promise.all(deletePromises);
+
+      // Add new images to S3
       const newImageUrls = req.files.map((file) => file.location);
-      hotel.images = [...hotel.images, ...newImageUrls]; // Append new image URLs
+      hotel.images = newImageUrls;
     }
 
     await hotel.save();
@@ -305,22 +336,73 @@ exports.deleteHotel = async (req, res) => {
       return res.status(403).json({ error: "Unauthorized" });
     }
 
-    // Delete images from S3 bucket
-    const deleteImagePromises = hotel.images.map(async (image) => {
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: image.split("/").pop(), // Extract the file name from the URL
-      };
-      return s3.send(new DeleteObjectCommand(params)); // Assuming s3 is your S3Client instance
-    });
+    // Delete hotel images from S3
+    const deleteParams = hotel.images.map((imageUrl) => ({
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: imageUrl.split("/").pop(),
+    }));
 
-    await Promise.all(deleteImagePromises); // Wait for all deletions to complete
+    const deletePromises = deleteParams.map((param) =>
+      s3.send(new DeleteObjectCommand(param))
+    );
+    await Promise.all(deletePromises);
 
-    // Remove hotel from database
     await hotel.remove();
     res.json({ msg: "Hotel deleted successfully" });
   } catch (error) {
     logger.error(`Error deleting hotel: ${error.message}`);
     res.status(500).json({ error: "Error deleting hotel" });
+  }
+};
+
+exports.bulkUpdateHotels = async (req, res) => {
+  const { ids, updateData } = req.body;
+
+  try {
+    const hotels = await Hotel.find({ _id: { $in: ids } });
+    if (!hotels.length) {
+      return res.status(404).json({ error: "Hotels not found" });
+    }
+
+    const updatedHotels = await Hotel.updateMany(
+      { _id: { $in: ids } },
+      { $set: updateData },
+      { new: true }
+    );
+
+    res.json(updatedHotels);
+  } catch (error) {
+    logger.error(`Error updating hotels: ${error.message}`);
+    res.status(500).json({ error: "Error updating hotels" });
+  }
+};
+
+exports.bulkDeleteHotels = async (req, res) => {
+  const { ids } = req.body;
+
+  try {
+    const hotels = await Hotel.find({ _id: { $in: ids } });
+    if (!hotels.length) {
+      return res.status(404).json({ error: "Hotels not found" });
+    }
+
+    // Delete images from S3 for each hotel
+    const deleteParams = hotels.flatMap((hotel) =>
+      hotel.images.map((imageUrl) => ({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: imageUrl.split("/").pop(),
+      }))
+    );
+
+    const deletePromises = deleteParams.map((param) =>
+      s3.send(new DeleteObjectCommand(param))
+    );
+    await Promise.all(deletePromises);
+
+    await Hotel.deleteMany({ _id: { $in: ids } });
+    res.json({ msg: "Hotels deleted successfully" });
+  } catch (error) {
+    logger.error(`Error deleting hotels: ${error.message}`);
+    res.status(500).json({ error: "Error deleting hotels" });
   }
 };

@@ -24,17 +24,23 @@ router.delete("/delete", adminController.deleteAdmin);
 // Routes for hotel operations with file upload middleware
 router.post(
   "/hotels",
-  adminController.uploadHotelImages,
+  adminController.uploadHotelImages, // Apply middleware here
   adminController.createHotel
 );
+
 // Route for updating a hotel
 router.put(
   "/hotels/:id",
-  adminController.uploadHotelImages,
+  adminController.uploadHotelImages, // Apply middleware here
   adminController.updateHotel
 );
 
 // Route for deleting a hotel
 router.delete("/hotels/:id", adminController.deleteHotel);
+
+// Routes for bulk operations on hotels
+router.put("/hotels/bulk-update", adminController.bulkUpdateHotels);
+
+router.delete("/hotels/bulk-delete", adminController.bulkDeleteHotels);
 
 module.exports = router;
