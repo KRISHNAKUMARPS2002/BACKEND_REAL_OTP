@@ -45,6 +45,23 @@ exports.registerWorker = async (req, res) => {
       .json({ error: "Please provide all required information" });
   }
 
+  // Check if the position is valid
+  const validPositions = [
+    "Reception",
+    "House Keeping",
+    "F and B / Restaurant",
+    "Maintenance",
+    "Transportation Plus GPS",
+    "Spa and Gym",
+    "Accountant",
+    "HR and PR",
+    "Pay roll",
+  ];
+
+  if (!validPositions.includes(position)) {
+    return res.status(400).json({ error: "Invalid position provided" });
+  }
+
   try {
     const hotel = await Hotel.findById(hotelId);
     if (!hotel) {
